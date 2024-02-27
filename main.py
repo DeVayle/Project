@@ -80,5 +80,3 @@ music_playing.set(True)
 
 main_menu()
 window.mainloop()
-
-# Проверка
