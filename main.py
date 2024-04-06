@@ -27,13 +27,13 @@ def settings():
             music_button.configure(text='Включить музыку')
 
         else:
-            winsound.PlaySound('music\static-symphony.wav',
+            winsound.PlaySound('music/berlin.wav',
                               winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
             music_playing.set(True)
             music_button.configure(text='Выключить музыку')
 
     music_button = tk.Button(window, command=music, font=btn_font)
-    music_button.place(anchor="center", relx=.15, rely=.61, relheight=.1)
+    music_button.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
 
     music_playing.set(True)
     music_button.configure(text='Выключить музыку')
@@ -74,7 +74,7 @@ window.attributes('-fullscreen', True)
 
 btn_font = font.Font(font=('Arial', 22))
 
-winsound.PlaySound('music\static-symphony.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
+winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
 music_playing = BooleanVar()
 music_playing.set(True)
 
