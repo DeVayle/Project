@@ -9,7 +9,6 @@ platforms = []
 exits = []
 pressed_keys = set()
 
-
 def key_pressed(event):
     pressed_keys.add(event.keysym)
 
@@ -38,7 +37,6 @@ def settings():
             winsound.PlaySound(None, winsound.SND_PURGE)
             music_playing.set(False)
             music_button.configure(text='Включить музыку')
-
         else:
             winsound.PlaySound('music/berlin.wav',
                                winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
@@ -68,8 +66,8 @@ def restore_menu():
 
 
 def main_menu():
-    lbl_gamename = tk.Label(window, text="2D-Platformer", font=btn_font)
-    lbl_gamename.place(anchor="center", relx=.2, rely=.2, relheight=.1, relwidth=.2)
+    lbl_game_name = tk.Label(window, text="2D-Platformer", font=btn_font)
+    lbl_game_name.place(anchor="center", relx=.2, rely=.2, relheight=.1, relwidth=.2)
 
     btn_play = tk.Button(window, text="Играть", command=level_1, font=btn_font)
     btn_play.place(anchor="center", relx=.15, rely=.5, relheight=.1, relwidth=.2)
@@ -128,7 +126,7 @@ def apply_gravity():
     else:
         in_air = False
         jumping = False
-    # Вызов функции еще раз после задержки
+    # Вызов функции ещё раз после задержки
     window.after(30, apply_gravity)
 
 
@@ -173,6 +171,12 @@ def create_exit(x, y, width, height):
     exits.append(exit)
 
 
+def restart_level():
+    global character_canvas, character
+    character_canvas.delete(character)
+    character = character_canvas.create_rectangle(800, 800, 860, 860, fill="blue")
+
+
 def resume_play():
     global pause, pause_text, btn_continue, btn_settings, btn_exit
     pause.place_forget()
@@ -209,6 +213,9 @@ def level_1():
 
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
+
+    btn_restart = tk.Button(window, text="ZOV", command=restart_level, font=btn_font)
+    btn_restart.place(anchor="center", relx=.126, rely=.046, relwidth=.04, relheight=.05)
 
     create_platform(0, 1000, 2000, 100) #ground
     create_platform(100, 900, 200, 20)
