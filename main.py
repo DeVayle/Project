@@ -9,6 +9,7 @@ platforms = []
 exits = []
 pressed_keys = set()
 
+
 def key_pressed(event):
     pressed_keys.add(event.keysym)
 
@@ -75,8 +76,8 @@ def main_menu():
     btn_sett = tk.Button(window, text="Настройки", command=settings, font=btn_font)
     btn_sett.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
 
-    btn_exit = tk.Button(window, text="Выход", command=window.destroy, font=btn_font)
-    btn_exit.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
+    btn_back = tk.Button(window, text="Выход", command=window.destroy, font=btn_font)
+    btn_back.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
 
 
 def move():
@@ -108,7 +109,7 @@ def jump_up(initial_y):
     x1, y1, x2, y2 = character_canvas.coords(character)
     if y1 > initial_y - 300:  # Проверка, достиг ли персонаж во время прыжка своей максимальной высоты прыжка
         character_canvas.move(character, 0, -20)
-        window.after(15, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
+        window.after(2, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
     else:
         jumping = False
 
@@ -121,13 +122,13 @@ def apply_gravity():
     # Проверка, находится ли персонаж на земле или на платформе
     if y2 < window.winfo_height() and check_collision_platforms(x1, y1, x2, y2) != 'top_or_bottom':
         # Если персонаж находится в воздухе, начать опускать его вниз (эффект гравитации)
-        character_canvas.move(character, 0, 20)
+        character_canvas.move(character, 0, 10)
         in_air = True
     else:
         in_air = False
         jumping = False
     # Вызов функции ещё раз после задержки
-    window.after(30, apply_gravity)
+    window.after(4, apply_gravity)
 
 
 def check_collision_platforms(x1, y1, x2, y2):
@@ -145,14 +146,14 @@ def check_collision_exits():
     for exit in exits:
         ex1, ey1, ex2, ey2 = character_canvas.coords(exit)
         if (ex1 < x1 < ex2 or ex1 < x2 < ex2) and (ey1 - 10 < y2 < ey1 + 10 or ey1 - 10 < y1 < ey1 + 10):
-            level_2()
+            next_level()
 
 
 def create_character(x1, y1, x2, y2):
     global character_canvas, character
-    character_canvas = tk.Canvas(window, bg="Cyan", width=1920, height=1080)
+    character_canvas = tk.Canvas(window, bg="DarkGray", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
-    character = character_canvas.create_rectangle(x1, y1, x2, y2, fill="blue")
+    character = character_canvas.create_rectangle(x1, y1, x2, y2, fill="azure4")
 
     # Назначение клавиш для функций передвижения
     window.bind("<Up>", move_up)
@@ -162,7 +163,7 @@ def create_character(x1, y1, x2, y2):
 
 def create_platform(x, y, width, height):
     # Создание платформ в character_canvas
-    platform = character_canvas.create_rectangle(x, y, x + width, y + height, fill="green")
+    platform = character_canvas.create_rectangle(x, y, x + width, y + height, fill="black")
     platforms.append(platform)
 
 
@@ -174,7 +175,7 @@ def create_exit(x, y, width, height):
 def restart_level():
     global character_canvas, character
     character_canvas.delete(character)
-    character = character_canvas.create_rectangle(800, 800, 860, 860, fill="blue")
+    character = character_canvas.create_rectangle(800, 800, 860, 860, fill="azure4")
 
 
 def resume_play():
@@ -184,6 +185,17 @@ def resume_play():
     btn_continue.place_forget()
     btn_settings.place_forget()
     btn_exit.place_forget()
+
+
+v = 1
+def next_level():
+    global v
+    if v == 1:
+        level_2()
+        v += 1
+    elif v == 2:
+        level_3()
+        v += 1
 
 
 def pause_menu():
@@ -215,7 +227,7 @@ def level_1():
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
     btn_restart = tk.Button(window, text="ZOV", command=restart_level, font=btn_font)
-    btn_restart.place(anchor="center", relx=.126, rely=.046, relwidth=.04, relheight=.05)
+    btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
 
     create_platform(0, 1000, 2000, 100) #ground
     create_platform(100, 900, 200, 20)
@@ -234,10 +246,19 @@ def clear_level():
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
+    btn_restart = tk.Button(window, text="ZOV", command=restart_level, font=btn_font)
+    btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
+
 
 def level_2():
     clear_level()
     create_platform(100, 900, 200, 20)
+    create_exit(1700, 900, 80, 120)
+
+
+def level_3():
+    clear_level()
+    create_platform(1000, 900, 200, 20)
 
 
 window = tk.Tk()
@@ -250,6 +271,9 @@ btn_font = font.Font(font=('Arial', 22))
 winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
 music_playing = BooleanVar()
 music_playing.set(True)
+
+game_running = BooleanVar()
+game_running.set(True)
 
 main_menu()
 window.mainloop()
