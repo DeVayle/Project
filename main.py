@@ -272,8 +272,5 @@ winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP
 music_playing = BooleanVar()
 music_playing.set(True)
 
-game_running = BooleanVar()
-game_running.set(True)
-
 main_menu()
 window.mainloop()
