@@ -178,6 +178,24 @@ def restart_level():
     character = character_canvas.create_rectangle(800, 800, 860, 860, fill="azure4")
 
 
+def pause_menu():
+    global pause, pause_text, btn_continue, btn_settings, btn_exit
+    pause = tk.Canvas(bg="white", width=1920, height=1080)
+    pause.place(x=0, y=0)
+
+    pause_text = tk.Label(window, bg="white", text="ПАУЗА", font=btn_font)
+    pause_text.place(anchor="center", relx=.5, rely=.2)
+
+    btn_continue = tk.Button(window, text="Продолжить", command=resume_play, font=btn_font)
+    btn_continue.place(anchor="center", relx=.5, rely=.4, relheight=.1, relwidth=.25)
+
+    btn_settings = tk.Button(window, text="Настройки", font=btn_font)
+    btn_settings.place(anchor="center", relx=.5, rely=.51, relheight=.1, relwidth=.25)
+
+    btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_menu, font=btn_font)
+    btn_exit.place(anchor="center", relx=.5, rely=.62, relheight=.1, relwidth=.25)
+
+
 def resume_play():
     global pause, pause_text, btn_continue, btn_settings, btn_exit
     pause.place_forget()
@@ -198,24 +216,6 @@ def next_level():
         v += 1
 
 
-def pause_menu():
-    global pause, pause_text, btn_continue, btn_settings, btn_exit
-    pause = tk.Canvas(bg="white", width=1920, height=1080)
-    pause.place(x=0, y=0)
-
-    pause_text = tk.Label(window, bg="white", text="ПАУЗА", font=btn_font)
-    pause_text.place(anchor="center", relx=.5, rely=.2)
-
-    btn_continue = tk.Button(window, text="Продолжить", command=resume_play, font=btn_font)
-    btn_continue.place(anchor="center", relx=.5, rely=.4, relheight=.1, relwidth=.25)
-
-    btn_settings = tk.Button(window, text="Настройки", font=btn_font)
-    btn_settings.place(anchor="center", relx=.5, rely=.51, relheight=.1, relwidth=.25)
-
-    btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_menu, font=btn_font)
-    btn_exit.place(anchor="center", relx=.5, rely=.62, relheight=.1, relwidth=.25)
-
-
 def level_1():
     clear_window()
     clear_level()
@@ -226,7 +226,7 @@ def level_1():
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
-    btn_restart = tk.Button(window, text="ZOV", command=restart_level, font=btn_font)
+    btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
     btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
 
     create_platform(0, 1000, 2000, 100) #ground
@@ -246,7 +246,7 @@ def clear_level():
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
-    btn_restart = tk.Button(window, text="ZOV", command=restart_level, font=btn_font)
+    btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
     btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
 
 
