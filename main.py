@@ -82,12 +82,13 @@ def main_menu():
 
 def move():
     x1, y1, x2, y2 = character_canvas.coords(character)
-    if (x1 > 0 and check_collision_platforms(x1, y1, x2, y2)) or (
-            x2 < window.winfo_width() and check_collision_platforms(x1, y1, x2, y2)) != 'left_or_right':
-        vel = -10 * ("Left" in pressed_keys) + 10 * ("Right" in pressed_keys)
-        character_canvas.move(character, vel, 0)
-        check_collision_exits()
-        window.after(25, move)  # Повторить перемещение через 25 мс
+    collision = check_collision_platforms(x1, y1, x2, y2)
+    if "Left" in pressed_keys and collision != 'right' and x1 > 0:
+        character_canvas.move(character, -10, 0)
+    elif "Right" in pressed_keys and collision != 'left' and x2 < window.winfo_width():
+        character_canvas.move(character, 10, 0)
+    check_collision_exits()
+    window.after(25, move)  # Повторить перемещение через 25 мс
 
 
 # Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
@@ -120,10 +121,14 @@ def apply_gravity():
     x1, y1, x2, y2 = character_canvas.coords(character)
 
     # Проверка, находится ли персонаж на земле или на платформе
-    if y2 < window.winfo_height() and check_collision_platforms(x1, y1, x2, y2) != 'top_or_bottom':
+    collision = check_collision_platforms(x1, y1, x2, y2)
+    if y2 < window.winfo_height() and collision != 'top':
         # Если персонаж находится в воздухе, начать опускать его вниз (эффект гравитации)
         character_canvas.move(character, 0, 10)
         in_air = True
+    elif collision == 'bottom':
+        # Если персонаж столкнулся с платформой снизу, прервать прыжок
+        jumping = False
     else:
         in_air = False
         jumping = False
@@ -134,10 +139,14 @@ def apply_gravity():
 def check_collision_platforms(x1, y1, x2, y2):
     for platform in platforms:
         px1, py1, px2, py2 = character_canvas.coords(platform)
-        if (px1 < x1 < px2 or px1 < x2 < px2) and (py1 - 10 < y2 < py1 + 10 or py1 - 10 < y1 < py1 + 10):
-            return 'top_or_bottom'
-        elif (py1 < y1 < py2 or py1 < y2 < py2) and (px1 - 10 < x2 < px1 + 10 or px2 - 10 < x1 < px2 + 10):
-            return 'left_or_right'
+        if (px1 < x1 < px2 or px1 < x2 < px2) and (py1 - 10 < y2 < py1 + 10):
+            return 'top'
+        elif (px1 < x1 < px2 or px1 < x2 < px2) and (py2 - 10 < y1 < py2 + 10):
+            return 'bottom'
+        elif (py1 < y1 < py2 or py1 < y2 < py2) and (px1 - 10 < x2 < px1 + 10):
+            return 'left'
+        elif (py1 < y1 < py2 or py1 < y2 < py2) and (px2 - 10 < x1 < px2 + 10):
+            return 'right'
     return None
 
 
@@ -153,7 +162,7 @@ def create_character(x1, y1, x2, y2):
     global character_canvas, character
     character_canvas = tk.Canvas(window, bg="DarkGray", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
-    character = character_canvas.create_rectangle(x1, y1, x2, y2, fill="azure4")
+    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="azure4", fill="azure4")
 
     # Назначение клавиш для функций передвижения
     window.bind("<Up>", move_up)
@@ -175,7 +184,7 @@ def create_exit(x, y, width, height):
 def restart_level():
     global character_canvas, character
     character_canvas.delete(character)
-    character = character_canvas.create_rectangle(800, 800, 860, 860, fill="azure4")
+    character = character_canvas.create_rectangle(800, 800, 860, 860, outline="azure4", fill="azure4")
 
 
 def pause_menu():
@@ -233,6 +242,7 @@ def level_1():
     create_platform(100, 900, 200, 20)
     create_platform(400, 660, 100, 20)
     create_platform(1400, 700, 150, 20)
+    create_platform(1100, 550, 100, 700)
     create_exit(1800, 880, 80, 120)
 
 
