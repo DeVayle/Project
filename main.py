@@ -7,6 +7,7 @@ import winsound
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 platforms = []
 exits = []
+spikes = []
 pressed_keys = set()
 
 
@@ -88,7 +89,8 @@ def move():
     elif "Right" in pressed_keys and collision != 'left' and x2 < window.winfo_width():
         character_canvas.move(character, 10, 0)
     check_collision_exits()
-    window.after(25, move)  # Повторить перемещение через 25 мс
+    check_collision_spikes()
+    window.after(20, move)  # Повторить перемещение через 25 мс
 
 
 # Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
@@ -122,13 +124,13 @@ def apply_gravity():
 
     # Проверка, находится ли персонаж на земле или на платформе
     collision = check_collision_platforms(x1, y1, x2, y2)
-    if y2 < window.winfo_height() and collision != 'top':
+    if y2 < window.winfo_height() and collision != 'top' and collision != 'bottom':
         # Если персонаж находится в воздухе, начать опускать его вниз (эффект гравитации)
         character_canvas.move(character, 0, 10)
         in_air = True
     elif collision == 'bottom':
-        # Если персонаж столкнулся с платформой снизу, прервать прыжок
-        jumping = False
+        character_canvas.move(character, 0, 10)
+        in_air = True
     else:
         in_air = False
         jumping = False
@@ -150,11 +152,30 @@ def check_collision_platforms(x1, y1, x2, y2):
     return None
 
 
+def check_collision_spikes():
+    x1, y1, x2, y2 = character_canvas.coords(character)
+    for spike in spikes:
+        sx1, sy1, sx2, sy2 = character_canvas.coords(spike)
+        if ((sx1 < x1 < sx2 or sx1 < x2 < sx2) and
+            (sy1 - 10 < y2 < sy1 + 10) or
+            (sx1 < x1 < sx2 or sx1 < x2 < sx2) and
+            (sy2 - 10 < y1 < sy2 + 10) or
+            (sy1 < y1 < sy2 or sy1 < y2 < sy2) and
+            (sx1 - 10 < x2 < sx1 + 10) or
+            (sy1 < y1 < sy2 or sy1 < y2 < sy2) and
+            (sx2 - 10 < x1 < sx2 + 10)):
+            restart_level()  # Функция, которая обрабатывает смерть персонажа
+            return 'dead'
+    return None
+
+
 def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
     for exit in exits:
         ex1, ey1, ex2, ey2 = character_canvas.coords(exit)
         if (ex1 < x1 < ex2 or ex1 < x2 < ex2) and (ey1 - 10 < y2 < ey1 + 10 or ey1 - 10 < y1 < ey1 + 10):
+            next_level()
+        elif (ey1 < y1 < ey2 or ey1 < y2 < ey2) and (ex1 - 10 < x2 < ex1 + 10 or ex1 - 10 < x1 < ex1 + 10):
             next_level()
 
 
@@ -176,8 +197,13 @@ def create_platform(x, y, width, height):
     platforms.append(platform)
 
 
+def create_spike(x, y, width, height):
+    spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red")
+    spikes.append(spike)
+
+
 def create_exit(x, y, width, height):
-    exit = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red")
+    exit = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
     exits.append(exit)
 
 
@@ -242,15 +268,17 @@ def level_1():
     create_platform(100, 900, 200, 20)
     create_platform(400, 660, 100, 20)
     create_platform(1400, 700, 150, 20)
-    create_platform(1100, 550, 100, 700)
+    create_platform(1100, 550, 100, 680)
+    create_spike(300, 980, 100, 20)
     create_exit(1800, 880, 80, 120)
 
 
 def clear_level():
-    global platforms, exits
+    global platforms, exits, spikes
     clear_window()
     platforms = []
     exits = []
+    spikes = []
     create_character(800, 800, 860, 860)
 
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
