@@ -110,9 +110,9 @@ def move_up(event):
 def jump_up(initial_y):
     global in_air, jumping
     x1, y1, x2, y2 = character_canvas.coords(character)
-    if y1 > initial_y - 300:  # Проверка, достиг ли персонаж во время прыжка своей максимальной высоты прыжка
+    if y1 > initial_y - 220:  # Проверка, достиг ли персонаж во время прыжка своей максимальной высоты прыжка
         character_canvas.move(character, 0, -20)
-        window.after(2, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
+        window.after(3, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
     else:
         jumping = False
 
@@ -124,11 +124,8 @@ def apply_gravity():
 
     # Проверка, находится ли персонаж на земле или на платформе
     collision = check_collision_platforms(x1, y1, x2, y2)
-    if y2 < window.winfo_height() and collision != 'top' and collision != 'bottom':
+    if y2 < window.winfo_height() and collision != 'top':
         # Если персонаж находится в воздухе, начать опускать его вниз (эффект гравитации)
-        character_canvas.move(character, 0, 10)
-        in_air = True
-    elif collision == 'bottom':
         character_canvas.move(character, 0, 10)
         in_air = True
     else:
@@ -143,8 +140,6 @@ def check_collision_platforms(x1, y1, x2, y2):
         px1, py1, px2, py2 = character_canvas.coords(platform)
         if (px1 < x1 < px2 or px1 < x2 < px2) and (py1 - 10 < y2 < py1 + 10):
             return 'top'
-        elif (px1 < x1 < px2 or px1 < x2 < px2) and (py2 - 10 < y1 < py2 + 10):
-            return 'bottom'
         elif (py1 < y1 < py2 or py1 < y2 < py2) and (px1 - 10 < x2 < px1 + 10):
             return 'left'
         elif (py1 < y1 < py2 or py1 < y2 < py2) and (px2 - 10 < x1 < px2 + 10):
@@ -153,18 +148,15 @@ def check_collision_platforms(x1, y1, x2, y2):
 
 
 def check_collision_spikes():
+    global in_air, jumping
     x1, y1, x2, y2 = character_canvas.coords(character)
     for spike in spikes:
         sx1, sy1, sx2, sy2 = character_canvas.coords(spike)
-        if ((sx1 < x1 < sx2 or sx1 < x2 < sx2) and
-            (sy1 - 10 < y2 < sy1 + 10) or
-            (sx1 < x1 < sx2 or sx1 < x2 < sx2) and
-            (sy2 - 10 < y1 < sy2 + 10) or
-            (sy1 < y1 < sy2 or sy1 < y2 < sy2) and
-            (sx1 - 10 < x2 < sx1 + 10) or
-            (sy1 < y1 < sy2 or sy1 < y2 < sy2) and
-            (sx2 - 10 < x1 < sx2 + 10)):
-            restart_level()  # Функция, которая обрабатывает смерть персонажа
+        if (sx1 <= x1 <= sx2 or sx1 <= x2 <= sx2) and (sy1 <= y1 <= sy2 or sy1 <= y2 <= sy2):
+            if in_air:
+                jumping = False
+                in_air = False
+            restart_level()  # Function to handle player death
             return 'dead'
     return None
 
@@ -210,7 +202,7 @@ def create_exit(x, y, width, height):
 def restart_level():
     global character_canvas, character
     character_canvas.delete(character)
-    character = character_canvas.create_rectangle(800, 800, 860, 860, outline="azure4", fill="azure4")
+    character = character_canvas.create_rectangle(800, 800, 840, 840, outline="azure4", fill="azure4")
 
 
 def pause_menu():
@@ -254,7 +246,7 @@ def next_level():
 def level_1():
     clear_window()
     clear_level()
-    create_character(800, 800, 860, 860)
+    create_character(800, 800, 840, 840)
     move()
     apply_gravity()
 
@@ -265,12 +257,30 @@ def level_1():
     btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
 
     create_platform(0, 1000, 2000, 100) #ground
-    create_platform(100, 900, 200, 20)
-    create_platform(400, 660, 100, 20)
+    create_platform(100, 850, 200, 20)
+    create_platform(400, 700, 500, 20)
+    create_platform(900, 800, 300, 20)
+    create_platform(1200, 700, 500, 20)
+    create_platform(900, 700, 20, 100)
+    create_platform(1180, 700, 20, 100)
+    create_platform(1000, 650, 100, 20)
+    create_platform(1500, 500, 300, 20)
+    create_platform(1300, 350, 100, 20)
     create_platform(1400, 700, 150, 20)
-    create_platform(1100, 550, 100, 680)
-    create_spike(300, 980, 100, 20)
-    create_exit(1800, 880, 80, 120)
+    create_platform(900, 400, 400, 20)
+    create_platform(1300, 370, 20, 50)
+    create_platform(970, 250, 80, 20)
+    create_platform(1100, 150, 1000, 20) #endline
+
+    create_spike(100, 870, 200, 10)
+    create_spike(550, 680, 100, 20)
+    create_spike(920, 780, 260, 20)
+    create_spike(1300, 500, 200, 20)
+    create_spike(1780, 170, 20, 330)
+    create_spike(1100, 170, 1000, 10)
+    create_spike(900, 0, 20, 400)
+
+    create_exit(1900, 50, 20, 100)
 
 
 def clear_level():
@@ -279,7 +289,7 @@ def clear_level():
     platforms = []
     exits = []
     spikes = []
-    create_character(800, 800, 860, 860)
+    create_character(800, 800, 840, 840)
 
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
