@@ -8,6 +8,7 @@ ctypes.windll.shcore.SetProcessDpiAwareness(1)
 platforms = []
 exits = []
 spikes = []
+keys = []
 pressed_keys = set()
 
 
@@ -90,6 +91,7 @@ def move():
         character_canvas.move(character, 10, 0)
     check_collision_exits()
     check_collision_spikes()
+    keys_collected()
     window.after(20, move)  # Повторить перемещение через 25 мс
 
 
@@ -161,6 +163,18 @@ def check_collision_spikes():
     return None
 
 
+k = 0
+def keys_collected():
+    global k
+    x1, y1, x2, y2 = character_canvas.coords(character)
+    for key in keys:
+        kx1, ky1, kx2, ky2 = character_canvas.coords(key)
+        if kx1 <= (x1 + x2) / 2 <= kx2 and ky1 <= (y1 + y2) / 2 <= ky2:
+            k += 1
+            keys.remove(key)  # Удаление ключа из списка
+            character_canvas.delete(key)  # Удаление ключа с экрана
+
+
 def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
     for exit in exits:
@@ -192,6 +206,15 @@ def create_platform(x, y, width, height):
 def create_spike(x, y, width, height):
     spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red")
     spikes.append(spike)
+
+
+def create_key(x, y, width, height):
+    key = character_canvas.create_rectangle(x, y, x + width, y + height, fill="gold")
+    keys.append(key)
+
+
+def check_keys(required_keys):
+    return k == required_keys
 
 
 def create_exit(x, y, width, height):
@@ -280,15 +303,23 @@ def level_1():
     create_spike(1100, 170, 1000, 10)
     create_spike(900, 0, 20, 400)
 
-    create_exit(1900, 50, 20, 100)
+    create_key(1200, 970, 20, 10)
+
+    def exits():
+        if check_keys(1):
+            create_exit(1900, 940, 200, 60)
+        else:
+            window.after(10, exits)
+    exits()
 
 
 def clear_level():
-    global platforms, exits, spikes
+    global platforms, exits, spikes, keys
     clear_window()
     platforms = []
     exits = []
     spikes = []
+    keys = []
     create_character(800, 800, 840, 840)
 
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
@@ -311,7 +342,6 @@ def level_3():
 
 window = tk.Tk()
 window.title('2D-Platformer')
-window.geometry("1280x720")
 window.attributes('-fullscreen', True)
 
 btn_font = font.Font(font=('Arial', 22))
