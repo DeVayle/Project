@@ -82,7 +82,15 @@ def main_menu():
     btn_back.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
 
 
+# Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
+in_air = False
+jumping = False
+move_running = False
+gravity_running = False
+
+
 def move():
+    global move_running
     x1, y1, x2, y2 = character_canvas.coords(character)
     collision = check_collision_platforms(x1, y1, x2, y2)
     if "Left" in pressed_keys and collision != 'right' and x1 > 0:
@@ -92,12 +100,8 @@ def move():
     check_collision_exits()
     check_collision_spikes()
     keys_collected()
+    move_running = True
     window.after(20, move)  # Повторить перемещение через 25 мс
-
-
-# Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
-in_air = False
-jumping = False
 
 
 def move_up(event):
@@ -120,7 +124,7 @@ def jump_up(initial_y):
 
 
 def apply_gravity():
-    global in_air, jumping
+    global in_air, jumping, gravity_running
     # Получение текущих координат персонажа
     x1, y1, x2, y2 = character_canvas.coords(character)
 
@@ -134,6 +138,7 @@ def apply_gravity():
         in_air = False
         jumping = False
     # Вызов функции ещё раз после задержки
+    gravity_running = True
     window.after(4, apply_gravity)
 
 
@@ -158,7 +163,7 @@ def check_collision_spikes():
             if in_air:
                 jumping = False
                 in_air = False
-            restart_level()  # Function to handle player death
+            restart_level()
             return 'dead'
     return None
 
@@ -217,15 +222,42 @@ def check_keys(required_keys):
     return k == required_keys
 
 
-def create_exit(x, y, width, height):
-    exit = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
-    exits.append(exit)
+def create_exito(x, y, width, height):
+    exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
+    exits.append(exito)
 
 
 def restart_level():
-    global character_canvas, character
+    global character_canvas, character, k, exits, spikes, keys, exito
+
+    # Удаление существующих объектов с холста
     character_canvas.delete(character)
-    character = character_canvas.create_rectangle(800, 800, 840, 840, outline="azure4", fill="azure4")
+    for platform in platforms:
+        character_canvas.delete(platform)
+    for spike in spikes:
+        character_canvas.delete(spike)
+    for key in keys:
+        character_canvas.delete(key)
+    for exito in exits:
+        character_canvas.delete(exito)
+
+    # Обнуление списков и переменных
+    platforms.clear()
+    exits.clear()
+    spikes.clear()
+    keys.clear()
+    k = 0
+
+    # Создание персонажа на начальной позиции
+    create_character(800, 800, 840, 840)
+
+    # Вызов функции для создания уровня
+    if v == 1:
+        level_1()
+    elif v == 2:
+        level_2()
+    elif v == 3:
+        level_3()
 
 
 def pause_menu():
@@ -268,10 +300,8 @@ def next_level():
 
 def level_1():
     clear_window()
-    clear_level()
     create_character(800, 800, 840, 840)
-    move()
-    apply_gravity()
+    req_keys = 1
 
     btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
@@ -303,14 +333,22 @@ def level_1():
     create_spike(1100, 170, 1000, 10)
     create_spike(900, 0, 20, 400)
 
-    create_key(1200, 970, 20, 10)
+    create_key(1200, 970, 40, 20)
 
     def exits():
-        if check_keys(1):
-            create_exit(1900, 940, 200, 60)
+        if check_keys(req_keys):
+            create_exito(1900, 50, 200, 100)
         else:
             window.after(10, exits)
     exits()
+
+    global move_running, gravity_running
+    if not move_running:
+        move()
+        move_running = True
+    if not gravity_running:
+        apply_gravity()
+        gravity_running = True
 
 
 def clear_level():
@@ -332,7 +370,7 @@ def clear_level():
 def level_2():
     clear_level()
     create_platform(100, 900, 200, 20)
-    create_exit(1700, 900, 80, 120)
+    create_exito(1700, 900, 80, 120)
 
 
 def level_3():
@@ -343,7 +381,6 @@ def level_3():
 window = tk.Tk()
 window.title('2D-Platformer')
 window.attributes('-fullscreen', True)
-
 btn_font = font.Font(font=('Arial', 22))
 
 winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
