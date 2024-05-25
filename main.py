@@ -25,6 +25,11 @@ def clear_window():
         widget.destroy()
 
 
+def restore_to_menu():
+    clear_window()
+    main_menu()
+
+
 def settings():
     clear_window()
     enabled_screen = BooleanVar()
@@ -59,11 +64,11 @@ def settings():
     enabled_chbtn1 = tk.Checkbutton(window, variable=enabled_screen, command=screen_mode)
     enabled_chbtn1.place(anchor="center", relx=.26, rely=.72)
 
-    btn_back = tk.Button(window, text="Вернуться", command=restore_menu, font=btn_font)
+    btn_back = tk.Button(window, text="Вернуться", command=restore_to_menu, font=btn_font)
     btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
-def restore_menu():
+def restore_to_menu_from_game():
     global move_running, gravity_running, k, v
     move_running = False
     gravity_running = False
@@ -299,7 +304,7 @@ def pause_menu():
     btn_settings = tk.Button(window, text="Настройки", font=btn_font)
     btn_settings.place(anchor="center", relx=.5, rely=.51, relheight=.1, relwidth=.25)
 
-    btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_menu, font=btn_font)
+    btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_to_menu_from_game, font=btn_font)
     btn_exit.place(anchor="center", relx=.5, rely=.62, relheight=.1, relwidth=.25)
 
 
