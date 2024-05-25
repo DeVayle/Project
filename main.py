@@ -64,6 +64,28 @@ def settings():
 
 
 def restore_menu():
+    global move_running, gravity_running, k, v
+    move_running = False
+    gravity_running = False
+
+    character_canvas.delete(character)
+    for platform in platforms:
+        character_canvas.delete(platform)
+    for spike in spikes:
+        character_canvas.delete(spike)
+    for key in keys:
+        character_canvas.delete(key)
+    for exito in exits:
+        character_canvas.delete(exito)
+
+    # Обнуление списков и переменных
+    platforms.clear()
+    exits.clear()
+    spikes.clear()
+    keys.clear()
+    k = 0
+    v = 1
+
     clear_window()
     main_menu()
 
@@ -72,7 +94,7 @@ def main_menu():
     lbl_game_name = tk.Label(window, text="2D-Platformer", font=btn_font)
     lbl_game_name.place(anchor="center", relx=.2, rely=.2, relheight=.1, relwidth=.2)
 
-    btn_play = tk.Button(window, text="Играть", command=level_1, font=btn_font)
+    btn_play = tk.Button(window, text="Играть", command= level_1, font=btn_font)
     btn_play.place(anchor="center", relx=.15, rely=.5, relheight=.1, relwidth=.2)
 
     btn_sett = tk.Button(window, text="Настройки", command=settings, font=btn_font)
@@ -228,7 +250,7 @@ def create_exito(x, y, width, height):
 
 
 def restart_level():
-    global character_canvas, character, k, exits, spikes, keys, exito
+    global character_canvas, character, k, exits, spikes, keys, exito, move_running, gravity_running
 
     # Удаление существующих объектов с холста
     character_canvas.delete(character)
@@ -258,6 +280,9 @@ def restart_level():
         level_2()
     elif v == 3:
         level_3()
+
+    move_running = True
+    gravity_running = True
 
 
 def pause_menu():
