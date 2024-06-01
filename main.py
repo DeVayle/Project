@@ -1,15 +1,18 @@
 from tkinter import *
 from tkinter import font
+from PIL import Image, ImageTk
 import tkinter as tk
-import ctypes
 import winsound
+import time
 
-ctypes.windll.shcore.SetProcessDpiAwareness(1)
 platforms = []
 exits = []
 spikes = []
 keys = []
 pressed_keys = set()
+deaths = 0
+k = 0
+v = 1
 
 
 def key_pressed(event):
@@ -28,44 +31,6 @@ def clear_window():
 def restore_to_menu():
     clear_window()
     main_menu()
-
-
-def settings():
-    clear_window()
-    enabled_screen = BooleanVar()
-
-    def screen_mode():
-        if enabled_screen.get() == 0:
-            window.attributes('-fullscreen', True)
-        else:
-            window.attributes('-fullscreen', False)
-
-    def music():
-        if music_playing.get() == 1:
-            winsound.PlaySound(None, winsound.SND_PURGE)
-            music_playing.set(False)
-            music_button.configure(text='Включить музыку')
-        else:
-            winsound.PlaySound('music/berlin.wav',
-                               winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
-            music_playing.set(True)
-            music_button.configure(text='Выключить музыку')
-
-    music_button = tk.Button(window, command=music, font=btn_font)
-    music_button.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
-
-    music_playing.set(True)
-    music_button.configure(text='Выключить музыку')
-
-    lbl_screen1 = tk.Label(window, text="Оконный", font=btn_font)
-    lbl_screen1.place(anchor="center", relx=.15, rely=.70, relheight=.03, relwidth=.2)
-    lbl_screen2 = tk.Label(window, text="режим", font=btn_font)
-    lbl_screen2.place(anchor="center", relx=.15, rely=.735, relheight=.04, relwidth=.2)
-    enabled_chbtn1 = tk.Checkbutton(window, variable=enabled_screen, command=screen_mode)
-    enabled_chbtn1.place(anchor="center", relx=.26, rely=.72)
-
-    btn_back = tk.Button(window, text="Вернуться", command=restore_to_menu, font=btn_font)
-    btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
 def restore_to_menu_from_game():
@@ -95,18 +60,50 @@ def restore_to_menu_from_game():
     main_menu()
 
 
-def main_menu():
-    lbl_game_name = tk.Label(window, text="2D-Platformer", font=btn_font)
-    lbl_game_name.place(anchor="center", relx=.2, rely=.2, relheight=.1, relwidth=.2)
+def helper():
+    bg = tk.Canvas(bg='White', width=1920, height=1080)
+    bg.place(x=0, y=0)
 
-    btn_play = tk.Button(window, text="Играть", command= level_1, font=btn_font)
+    btn_back = tk.Button(window, text='Вернуться', command=restore_to_menu, font=btn_font)
+    btn_back.place(anchor="center", relx=.125, rely=.9, relheight=.1, relwidth=.2)
+
+
+def main_menu():
+    background = tk.Canvas(bg='White', width=1920, height=1080)
+    background.place(x=0, y=0)
+
+    def music():
+        if music_playing.get() == 1:
+            winsound.PlaySound(None, winsound.SND_PURGE)
+            music_playing.set(False)
+            music_button.configure(text='Включить музыку')
+        else:
+            winsound.PlaySound('music/berlin.wav',
+                               winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
+            music_playing.set(True)
+            music_button.configure(text='Выключить музыку')
+
+
+    game_name = Canvas(window, width=576, height=162)
+    game_name.place(anchor="center", relx=.5, rely=.5)
+    game_name.pack()
+    game_name_img = tk.PhotoImage('textures/lava.png')
+    print(game_name_img.width())
+    game_name.create_image(0, 0, anchor='nw', image=game_name_img)
+
+    btn_play = tk.Button(window, text="Играть", command=level_1, font=btn_font)
     btn_play.place(anchor="center", relx=.15, rely=.5, relheight=.1, relwidth=.2)
 
-    btn_sett = tk.Button(window, text="Настройки", command=settings, font=btn_font)
-    btn_sett.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
+    btn_help = tk.Button(window, text='Правила Игры', command=helper, font=btn_font)
+    btn_help.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
+
+    music_button = tk.Button(window, command=music, font=btn_font)
+    music_button.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
+    music_playing.set(True)
+    music_button.configure(text='Выключить музыку')
 
     btn_back = tk.Button(window, text="Выход", command=window.destroy, font=btn_font)
-    btn_back.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
+    btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
 # Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
@@ -115,9 +112,11 @@ jumping = False
 move_running = False
 gravity_running = False
 
+time_start = 0
+
 
 def move():
-    global move_running
+    global move_running, time_start
     x1, y1, x2, y2 = character_canvas.coords(character)
     collision = check_collision_platforms(x1, y1, x2, y2)
     if "Left" in pressed_keys and collision != 'right' and x1 > 0:
@@ -128,7 +127,8 @@ def move():
     check_collision_spikes()
     keys_collected()
     move_running = True
-    window.after(20, move)  # Повторить перемещение через 25 мс
+    if time_start == 0: time_start = time.time()
+    window.after(20, move)  # Повторить перемещение через 20 мс
 
 
 def move_up(event):
@@ -195,7 +195,6 @@ def check_collision_spikes():
     return None
 
 
-k = 0
 def keys_collected():
     global k
     x1, y1, x2, y2 = character_canvas.coords(character)
@@ -209,8 +208,8 @@ def keys_collected():
 
 def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
-    for exit in exits:
-        ex1, ey1, ex2, ey2 = character_canvas.coords(exit)
+    for exito in exits:
+        ex1, ey1, ex2, ey2 = character_canvas.coords(exito)
         if (ex1 < x1 < ex2 or ex1 < x2 < ex2) and (ey1 - 10 < y2 < ey1 + 10 or ey1 - 10 < y1 < ey1 + 10):
             next_level()
         elif (ey1 < y1 < ey2 or ey1 < y2 < ey2) and (ex1 - 10 < x2 < ex1 + 10 or ex1 - 10 < x1 < ex1 + 10):
@@ -219,9 +218,9 @@ def check_collision_exits():
 
 def create_character(x1, y1, x2, y2):
     global character_canvas, character
-    character_canvas = tk.Canvas(window, bg="DarkGray", width=1920, height=1080)
+    character_canvas = tk.Canvas(window, bg="WhiteSmoke", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
-    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="azure4", fill="azure4")
+    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="azure4", fill="grey20")
 
     # Назначение клавиш для функций передвижения
     window.bind("<Up>", move_up)
@@ -255,7 +254,7 @@ def create_exito(x, y, width, height):
 
 
 def restart_level():
-    global character_canvas, character, k, exits, spikes, keys, exito, move_running, gravity_running
+    global character_canvas, character, k, exits, spikes, keys, exito, move_running, gravity_running, deaths
 
     # Удаление существующих объектов с холста
     character_canvas.delete(character)
@@ -274,6 +273,7 @@ def restart_level():
     spikes.clear()
     keys.clear()
     k = 0
+    deaths += 1
 
     # Создание персонажа на начальной позиции
     create_character(800, 800, 840, 840)
@@ -285,6 +285,8 @@ def restart_level():
         level_2()
     elif v == 3:
         level_3()
+    elif v == 4:
+        level_final()
 
     move_running = True
     gravity_running = True
@@ -292,20 +294,32 @@ def restart_level():
 
 def pause_menu():
     global pause, pause_text, btn_continue, btn_settings, btn_exit
+
+    def music():
+        if music_playing.get() == 1:
+            winsound.PlaySound(None, winsound.SND_PURGE)
+            music_playing.set(False)
+            btn_music.configure(text='Включить музыку')
+        else:
+            winsound.PlaySound('music/berlin.wav',
+                               winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
+            music_playing.set(True)
+            btn_music.configure(text='Выключить музыку')
+
     pause = tk.Canvas(bg="white", width=1920, height=1080)
     pause.place(x=0, y=0)
 
-    pause_text = tk.Label(window, bg="white", text="ПАУЗА", font=btn_font)
-    pause_text.place(anchor="center", relx=.5, rely=.2)
+    pause_text = tk.Label(window, text="ПАУЗА", font=btn_font)
+    pause_text.place(anchor="center", relx=.5, rely=.225, relheight=.2, relwidth=.35)
 
     btn_continue = tk.Button(window, text="Продолжить", command=resume_play, font=btn_font)
-    btn_continue.place(anchor="center", relx=.5, rely=.4, relheight=.1, relwidth=.25)
+    btn_continue.place(anchor="center", relx=.5, rely=.5, relheight=.1, relwidth=.25)
 
-    btn_settings = tk.Button(window, text="Настройки", font=btn_font)
-    btn_settings.place(anchor="center", relx=.5, rely=.51, relheight=.1, relwidth=.25)
+    btn_music = tk.Button(window, command=music, font=btn_font)
+    btn_music.place(anchor="center", relx=.5, rely=.61, relheight=.1, relwidth=.25)
 
     btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_to_menu_from_game, font=btn_font)
-    btn_exit.place(anchor="center", relx=.5, rely=.62, relheight=.1, relwidth=.25)
+    btn_exit.place(anchor="center", relx=.5, rely=.72, relheight=.1, relwidth=.25)
 
 
 def resume_play():
@@ -317,7 +331,6 @@ def resume_play():
     btn_exit.place_forget()
 
 
-v = 1
 def next_level():
     global v
     if v == 1:
@@ -325,6 +338,9 @@ def next_level():
         v += 1
     elif v == 2:
         level_3()
+        v += 1
+    elif v == 3:
+        level_final()
         v += 1
 
 
@@ -337,7 +353,7 @@ def level_1():
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
     btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
-    btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
+    btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
 
     create_platform(0, 1000, 2000, 100) #ground
     create_platform(100, 850, 200, 20)
@@ -367,7 +383,7 @@ def level_1():
 
     def exits():
         if check_keys(req_keys):
-            create_exito(1900, 50, 200, 100)
+            create_exito(1900, 850, 200, 100)
         else:
             window.after(10, exits)
     exits()
@@ -394,7 +410,7 @@ def clear_level():
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
     btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
-    btn_restart.place(anchor="center", relx=.066, rely=.046, relwidth=.04, relheight=.05)
+    btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
 
 
 def level_2():
@@ -406,6 +422,27 @@ def level_2():
 def level_3():
     clear_level()
     create_platform(1000, 900, 200, 20)
+
+    create_exito(1500, 900, 200, 100)
+
+
+def level_final():
+    global time_start
+    clear_level()
+    all_time = str(round(time.time() - time_start))
+
+    final_message = tk.Label(text='ggwp', font=btn_font)
+    final_message.place(anchor='center', relx=.5, rely=.4)
+
+    death = tk.Label(text='Смертей/Перезапусков:', font=btn_font)
+    death.place(anchor='center', relx=.3, rely=.5)
+    death_count = tk.Label(text=f"{deaths}", font=btn_font)
+    death_count.place(anchor='center', relx=.3, rely=.55)
+
+    time_spent = tk.Label(text='Времени затрачено:', font=btn_font)
+    time_spent.place(anchor='center', relx=.7, rely=.5)
+    timer = tk.Label(text=f"{all_time}" + " секунд", font=btn_font)
+    timer.place(anchor='center', relx=.7, rely=.55)
 
 
 window = tk.Tk()
