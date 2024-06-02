@@ -61,12 +61,44 @@ def restore_to_menu_from_game():
 
 
 def helper():
-    bg = tk.Canvas(bg='White', width=1920, height=1080)
+    bg = tk.Canvas(width=1920, height=1080)
     bg.place(x=0, y=0)
 
-    btn_back = tk.Button(window, text='Вернуться', command=restore_to_menu, font=btn_font)
+    btn_back = tk.Button(bg='white', bd=0, text='Вернуться', command=restore_to_menu, font=btn_font)
     btn_back.place(anchor="center", relx=.125, rely=.9, relheight=.1, relwidth=.2)
 
+    you = "Ваш главный персонаж - серый квадрат"
+    goal = "Основная цель игры - собрать все ключи на каждом уровне и успешно пройти все уровни, избегая опасности"
+    you_lbl = tk.Label(text=you, wraplength=575, justify="left", font=text_font)
+    goal_lbl = tk.Label(text=goal, wraplength=575, justify="left", font=text_font)
+    you_lbl.place(anchor="n", relx=.2, rely=.35)
+    goal_lbl.place(anchor="n", x=360, rely=.43)
+
+    base_controls = "Игрок управляет персонажем с помощью клавиш стрелок:"
+    base_controls_left = "Стрелка влево: персонаж движется влево"
+    base_controls_right = "Стрелка вправо: персонаж движется вправо"
+    base_controls_up = "Стрелка вверх: персонаж прыгает"
+    bc_lbl = tk.Label(text=base_controls, wraplength=550, justify="left", font=text_font)
+    bcl_lbl = tk.Label(text=base_controls_left, wraplength=550, justify="left", font=text_font)
+    bcr_lbl = tk.Label(text=base_controls_right, wraplength=550, justify="left", font=text_font)
+    bcu_lbl = tk.Label(text=base_controls_up, wraplength=550, justify="left", font=text_font)
+    bc_lbl.place(anchor="n", relx=.5, rely=.35)
+    bcl_lbl.place(anchor="n", x=924, rely=.46)
+    bcr_lbl.place(anchor="n", x=924, rely=.57)
+    bcu_lbl.place(anchor="n", x=912, rely=.68)
+
+    base_mechanics = "Основные механики игры"
+    key_mechanics = "Сбор ключей: Игрок должен собирать ключи, чтобы открыть доступ к следующим испытаниям"
+    spike_mechanics = "Смерть о лаву: Если персонаж касается лавы, он погибает, и уровень начинается заново"
+    level_mechanics = "Переход на новый уровень: После сбора всех ключей, игрок должен найти выход, чтобы перейти на следующий уровень"
+    bm_lbl = tk.Label(text=base_mechanics, wraplength=550, justify="left", font=text_font)
+    km_lbl = tk.Label(text=key_mechanics, wraplength=550, justify="left", font=text_font)
+    sm_lbl = tk.Label(text=spike_mechanics, wraplength=550, justify="left", font=text_font)
+    lm_lbl = tk.Label(text=level_mechanics, wraplength=550, justify="left", font=text_font)
+    bm_lbl.place(anchor="n", relx=.8, rely=.35)
+    km_lbl.place(anchor="n", x=1512, rely=.4)
+    sm_lbl.place(anchor="n", x=1512, rely=.57)
+    lm_lbl.place(anchor="n", x=1512, rely=.74)
 
 def main_menu():
     background = tk.Canvas(bg='White', width=1920, height=1080)
@@ -83,26 +115,25 @@ def main_menu():
             music_playing.set(True)
             music_button.configure(text='Выключить музыку')
 
-
-    game_name = Canvas(window, width=576, height=162)
-    game_name.place(anchor="center", relx=.5, rely=.5)
-    game_name.pack()
-    game_name_img = tk.PhotoImage('textures/lava.png')
+    game_name = Canvas(width=576, height=162)
+    # game_name.place()
+    game_name_img = ImageTk.PhotoImage(file='textures/name.png')
     print(game_name_img.width())
     game_name.create_image(0, 0, anchor='nw', image=game_name_img)
+    game_name.place(anchor="center", relx=.275, rely=.2)
 
-    btn_play = tk.Button(window, text="Играть", command=level_1, font=btn_font)
+    btn_play = tk.Button(bg='white', bd=0, text="Играть", command=level_1, font=btn_font, anchor="w")
     btn_play.place(anchor="center", relx=.15, rely=.5, relheight=.1, relwidth=.2)
 
-    btn_help = tk.Button(window, text='Правила Игры', command=helper, font=btn_font)
+    btn_help = tk.Button(bg='white', bd=0, text='Правила Игры', command=helper, font=btn_font, anchor="w")
     btn_help.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
 
-    music_button = tk.Button(window, command=music, font=btn_font)
+    music_button = tk.Button(bg='white', bd=0, command=music, font=btn_font, anchor="w")
     music_button.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
     music_playing.set(True)
     music_button.configure(text='Выключить музыку')
 
-    btn_back = tk.Button(window, text="Выход", command=window.destroy, font=btn_font)
+    btn_back = tk.Button(bg='white', bd=0, text="Выход", command=window.destroy, font=btn_font, anchor="w")
     btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
@@ -111,8 +142,6 @@ in_air = False
 jumping = False
 move_running = False
 gravity_running = False
-
-time_start = 0
 
 
 def move():
@@ -127,7 +156,6 @@ def move():
     check_collision_spikes()
     keys_collected()
     move_running = True
-    if time_start == 0: time_start = time.time()
     window.after(20, move)  # Повторить перемещение через 20 мс
 
 
@@ -210,15 +238,13 @@ def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
     for exito in exits:
         ex1, ey1, ex2, ey2 = character_canvas.coords(exito)
-        if (ex1 < x1 < ex2 or ex1 < x2 < ex2) and (ey1 - 10 < y2 < ey1 + 10 or ey1 - 10 < y1 < ey1 + 10):
-            next_level()
-        elif (ey1 < y1 < ey2 or ey1 < y2 < ey2) and (ex1 - 10 < x2 < ex1 + 10 or ex1 - 10 < x1 < ex1 + 10):
+        if (ex1 <= x1 <= ex2 or ex1 <= x2 <= ex2) and (ey1 <= y1 <= ey2 or ey1 <= y2 <= ey2):
             next_level()
 
 
 def create_character(x1, y1, x2, y2):
     global character_canvas, character
-    character_canvas = tk.Canvas(window, bg="WhiteSmoke", width=1920, height=1080)
+    character_canvas = tk.Canvas(bg="WhiteSmoke", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
     character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="azure4", fill="grey20")
 
@@ -235,12 +261,12 @@ def create_platform(x, y, width, height):
 
 
 def create_spike(x, y, width, height):
-    spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red")
+    spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red", outline="red")
     spikes.append(spike)
 
 
-def create_key(x, y, width, height):
-    key = character_canvas.create_rectangle(x, y, x + width, y + height, fill="gold")
+def create_key(x, y):
+    key = character_canvas.create_rectangle(x, y, x + 40, y + 20, fill="gold")
     keys.append(key)
 
 
@@ -276,7 +302,7 @@ def restart_level():
     deaths += 1
 
     # Создание персонажа на начальной позиции
-    create_character(800, 800, 840, 840)
+    create_character(400, 960, 440, 1000)
 
     # Вызов функции для создания уровня
     if v == 1:
@@ -286,6 +312,8 @@ def restart_level():
     elif v == 3:
         level_3()
     elif v == 4:
+        level_4()
+    elif v == 5:
         level_final()
 
     move_running = True
@@ -293,7 +321,7 @@ def restart_level():
 
 
 def pause_menu():
-    global pause, pause_text, btn_continue, btn_settings, btn_exit
+    global pause, pause_text, btn_continue, btn_music, btn_exit
 
     def music():
         if music_playing.get() == 1:
@@ -309,25 +337,28 @@ def pause_menu():
     pause = tk.Canvas(bg="white", width=1920, height=1080)
     pause.place(x=0, y=0)
 
-    pause_text = tk.Label(window, text="ПАУЗА", font=btn_font)
+    pause_text = tk.Label(text="ПАУЗА", font=btn_font)
     pause_text.place(anchor="center", relx=.5, rely=.225, relheight=.2, relwidth=.35)
 
-    btn_continue = tk.Button(window, text="Продолжить", command=resume_play, font=btn_font)
+    btn_continue = tk.Button(text="Продолжить", command=resume_play, font=btn_font)
     btn_continue.place(anchor="center", relx=.5, rely=.5, relheight=.1, relwidth=.25)
 
-    btn_music = tk.Button(window, command=music, font=btn_font)
+    btn_music = tk.Button(command=music, font=btn_font)
     btn_music.place(anchor="center", relx=.5, rely=.61, relheight=.1, relwidth=.25)
 
-    btn_exit = tk.Button(window, text="Выйти в главное меню", command=restore_to_menu_from_game, font=btn_font)
+    btn_exit = tk.Button(text="Выйти в главное меню", command=restore_to_menu_from_game, font=btn_font)
     btn_exit.place(anchor="center", relx=.5, rely=.72, relheight=.1, relwidth=.25)
+
+    warning = tk.Label(text="При выходе в главное меню накопленный прогресс будет сброшен", font=btn_font)
+    warning.place(anchor="center", relx=.5, rely=.8)
 
 
 def resume_play():
-    global pause, pause_text, btn_continue, btn_settings, btn_exit
+    global pause, pause_text, btn_continue, btn_music, btn_exit
     pause.place_forget()
     pause_text.place_forget()
     btn_continue.place_forget()
-    btn_settings.place_forget()
+    btn_music.place_forget()
     btn_exit.place_forget()
 
 
@@ -340,50 +371,58 @@ def next_level():
         level_3()
         v += 1
     elif v == 3:
+        level_4()
+        v += 1
+    elif v == 4:
         level_final()
         v += 1
 
 
-def level_1():
+def clear_level():
+    global platforms, exits, spikes, keys, k
     clear_window()
-    create_character(800, 800, 840, 840)
-    req_keys = 1
+    platforms = []
+    exits = []
+    spikes = []
+    keys = []
+    k = 0
+    create_character(400, 960, 440, 1000)
 
-    btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
+    btn_pause = tk.Button(text="II", command=pause_menu, font=btn_font)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
-    btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
+    btn_restart = tk.Button(text="R", command=restart_level, font=btn_font)
     btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
 
-    create_platform(0, 1000, 2000, 100) #ground
-    create_platform(100, 850, 200, 20)
-    create_platform(400, 700, 500, 20)
-    create_platform(900, 800, 300, 20)
-    create_platform(1200, 700, 500, 20)
-    create_platform(900, 700, 20, 100)
-    create_platform(1180, 700, 20, 100)
-    create_platform(1000, 650, 100, 20)
-    create_platform(1500, 500, 300, 20)
-    create_platform(1300, 350, 100, 20)
-    create_platform(1400, 700, 150, 20)
-    create_platform(900, 400, 400, 20)
-    create_platform(1300, 370, 20, 50)
-    create_platform(970, 250, 80, 20)
-    create_platform(1100, 150, 1000, 20) #endline
 
-    create_spike(100, 870, 200, 10)
-    create_spike(550, 680, 100, 20)
-    create_spike(920, 780, 260, 20)
-    create_spike(1300, 500, 200, 20)
-    create_spike(1780, 170, 20, 330)
-    create_spike(1100, 170, 1000, 10)
-    create_spike(900, 0, 20, 400)
+def level_1():
+    global time_start
+    clear_window()
+    create_character(400, 960, 440, 1000)
+    time_start = time.time()
 
-    create_key(1200, 970, 40, 20)
+    btn_pause = tk.Button(text="II", command=pause_menu, font=btn_font)
+    btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
+
+    btn_restart = tk.Button(text="R", command=restart_level, font=btn_font)
+    btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
+
+    create_platform(0, 1000, 2000, 100)  # spawn
+    create_platform(1000, 850, 320, 20)
+    create_platform(1400, 700, 450, 20)
+    create_platform(1650, 500, 100, 20)
+    create_platform(1550, 300, 100, 20)
+    create_platform(1100, 350, 300, 20)
+    create_platform(800, 550, 200, 20)
+    create_platform(400, 750, 200, 20)  # key
+    create_platform(0, 200, 1000, 20)  # end
+
+    create_key(480, 720)
+    req_keys1 = 1
 
     def exits():
-        if check_keys(req_keys):
-            create_exito(1900, 850, 200, 100)
+        if check_keys(req_keys1):
+            create_exito(50, 100, 60, 100)
         else:
             window.after(10, exits)
     exits()
@@ -397,33 +436,118 @@ def level_1():
         gravity_running = True
 
 
-def clear_level():
-    global platforms, exits, spikes, keys
-    clear_window()
-    platforms = []
-    exits = []
-    spikes = []
-    keys = []
-    create_character(800, 800, 840, 840)
-
-    btn_pause = tk.Button(window, text="II", command=pause_menu, font=btn_font)
-    btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
-
-    btn_restart = tk.Button(window, text="R", command=restart_level, font=btn_font)
-    btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
-
-
 def level_2():
     clear_level()
-    create_platform(100, 900, 200, 20)
-    create_exito(1700, 900, 80, 120)
+
+    create_platform(300, 1000, 200, 100)  # spawn
+    create_platform(100, 850, 250, 20)
+    create_platform(1570, 850, 250, 20)
+    create_platform(350, 650, 250, 20)
+    create_platform(1320, 650, 250, 20)
+    create_platform(600, 450, 250, 20)
+    create_platform(1070, 450, 250, 20)
+    create_platform(850, 250, 220, 20)  # end
+    create_platform(800, 750, 320, 20)  # key 1
+    create_platform(280, 350, 150, 20)  # key 2
+    create_platform(1490, 350, 150, 20)  # key 3
+
+    create_spike(0, 1020, 2000, 100)
+
+    create_key(940, 720)
+    create_key(330, 320)
+    create_key(1550, 320)
+    req_keys2 = 3
+
+    def exits():
+        if check_keys(req_keys2):
+            create_exito(930, 150, 60, 100)
+        else:
+            window.after(10, exits)
+    exits()
 
 
 def level_3():
     clear_level()
-    create_platform(1000, 900, 200, 20)
 
-    create_exito(1500, 900, 200, 100)
+    create_platform(0, 1000, 2000, 100)  # ground
+    create_platform(100, 850, 200, 20)
+    create_platform(400, 700, 410, 20)
+    create_platform(790, 720, 20, 80)
+    create_platform(1290, 720, 20, 80)
+    create_platform(1290, 700, 500, 20)
+    create_platform(1025, 700, 50, 20)
+    create_platform(1500, 500, 300, 20)
+    create_platform(1300, 350, 100, 20)
+    create_platform(1400, 700, 150, 20)
+    create_platform(900, 400, 400, 20)
+    create_platform(1300, 370, 20, 50)
+    create_platform(970, 250, 80, 20)
+    create_platform(100, 550, 200, 20)
+    create_platform(400, 350, 150, 20)
+    create_platform(650, 200, 150, 20)
+    create_platform(1100, 150, 1000, 20)  # end
+
+    create_spike(100, 870, 200, 20)
+    create_spike(550, 680, 100, 20)
+    create_spike(790, 780, 520, 20)
+    create_spike(1780, 170, 20, 330)
+    create_spike(1100, 170, 1000, 20)
+    create_spike(900, 0, 20, 400)
+
+    create_key(1850, 570)
+    create_key(705, 170)
+    req_keys4 = 2
+
+    def exits():
+        if check_keys(req_keys4):
+            create_exito(1840, 50, 60, 100)
+        else:
+            window.after(10, exits)
+    exits()
+
+
+def level_4():
+    clear_level()
+
+    create_platform(300, 1000, 200, 100)  # spawn
+    create_platform(700, 1000, 200, 20)
+    create_platform(1100, 1000, 300, 20)
+    create_platform(1450, 850, 200, 20)
+    create_platform(1800, 950, 100, 20)  # key 1
+    create_platform(1750, 700, 100, 20)
+    create_platform(1400, 600, 200, 20)
+    create_platform(1000, 600, 180, 20)
+    create_platform(650, 600, 150, 20)
+    create_platform(350, 600, 100, 20)
+    create_platform(220, 620, 60, 20)
+    create_platform(220, 760, 60, 20)
+    create_platform(220, 900, 60, 20)
+    create_platform(220, 1040, 60, 20)  # key 2
+    create_platform(0, 500, 60, 20)
+    create_platform(0, 350, 60, 20)
+    create_platform(0, 200, 400, 20)  # end
+    create_platform(550, 250, 150, 20)
+    create_platform(900, 250, 120, 20)
+    create_platform(1200, 250, 200, 20)
+    create_platform(1800, 350, 200, 20)  # key 3
+    create_platform(1550, 200, 200, 20)
+
+    create_spike(300, 1030, 2000, 100)
+    create_spike(0, 1060, 300, 50)
+    create_spike(280, 480, 20, 1000)
+    create_spike(280, 220, 20, 80)
+
+    create_key(1830, 920)
+    create_key(230, 1010)
+    create_key(1830, 320)
+    req_keys3 = 3
+
+    def exits():
+        if check_keys(req_keys3):
+            create_exito(40, 100, 60, 100)
+        else:
+            window.after(10, exits)
+    exits()
 
 
 def level_final():
@@ -444,11 +568,17 @@ def level_final():
     timer = tk.Label(text=f"{all_time}" + " секунд", font=btn_font)
     timer.place(anchor='center', relx=.7, rely=.55)
 
+    dead_end = tk.Button(text="Перейти в Главное меню", command=restore_to_menu_from_game, font=btn_font)
+    dead_end.place(anchor='center', relx=.5, rely=.65)
+
+    create_platform(0, 1000, 2000, 100)
+
 
 window = tk.Tk()
 window.title('2D-Platformer')
 window.attributes('-fullscreen', True)
-btn_font = font.Font(font=('Arial', 22))
+btn_font = font.Font(font=('Better VCR Regular', 12))
+text_font = font.Font(font=('Better VCR Regular', 24))
 
 winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
 music_playing = BooleanVar()
