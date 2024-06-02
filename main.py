@@ -61,16 +61,16 @@ def restore_to_menu_from_game():
 
 
 def helper():
-    bg = tk.Canvas(width=1920, height=1080)
+    bg = tk.Canvas(bg="#cfcfcf", width=1920, height=1080)
     bg.place(x=0, y=0)
 
-    btn_back = tk.Button(bg='white', bd=0, text='Вернуться', command=restore_to_menu, font=btn_font)
+    btn_back = tk.Button(bg="#cfcfcf", activebackground="#cfcfcf", text='Вернуться', command=restore_to_menu, font=text_font, borderwidth=0)
     btn_back.place(anchor="center", relx=.125, rely=.9, relheight=.1, relwidth=.2)
 
     you = "Ваш главный персонаж - серый квадрат"
     goal = "Основная цель игры - собрать все ключи на каждом уровне и успешно пройти все уровни, избегая опасности"
-    you_lbl = tk.Label(text=you, wraplength=575, justify="left", font=text_font)
-    goal_lbl = tk.Label(text=goal, wraplength=575, justify="left", font=text_font)
+    you_lbl = tk.Label(bg="#cfcfcf", text=you, wraplength=575, justify="left", font=text_font)
+    goal_lbl = tk.Label(bg="#cfcfcf", text=goal, wraplength=575, justify="left", font=text_font)
     you_lbl.place(anchor="n", relx=.2, rely=.35)
     goal_lbl.place(anchor="n", x=360, rely=.43)
 
@@ -78,10 +78,10 @@ def helper():
     base_controls_left = "Стрелка влево: персонаж движется влево"
     base_controls_right = "Стрелка вправо: персонаж движется вправо"
     base_controls_up = "Стрелка вверх: персонаж прыгает"
-    bc_lbl = tk.Label(text=base_controls, wraplength=550, justify="left", font=text_font)
-    bcl_lbl = tk.Label(text=base_controls_left, wraplength=550, justify="left", font=text_font)
-    bcr_lbl = tk.Label(text=base_controls_right, wraplength=550, justify="left", font=text_font)
-    bcu_lbl = tk.Label(text=base_controls_up, wraplength=550, justify="left", font=text_font)
+    bc_lbl = tk.Label(bg="#cfcfcf", text=base_controls, wraplength=550, justify="left", font=text_font)
+    bcl_lbl = tk.Label(bg="#cfcfcf", text=base_controls_left, wraplength=550, justify="left", font=text_font)
+    bcr_lbl = tk.Label(bg="#cfcfcf", text=base_controls_right, wraplength=550, justify="left", font=text_font)
+    bcu_lbl = tk.Label(bg="#cfcfcf", text=base_controls_up, wraplength=550, justify="left", font=text_font)
     bc_lbl.place(anchor="n", relx=.5, rely=.35)
     bcl_lbl.place(anchor="n", x=924, rely=.46)
     bcr_lbl.place(anchor="n", x=924, rely=.57)
@@ -91,49 +91,51 @@ def helper():
     key_mechanics = "Сбор ключей: Игрок должен собирать ключи, чтобы открыть доступ к следующим испытаниям"
     spike_mechanics = "Смерть о лаву: Если персонаж касается лавы, он погибает, и уровень начинается заново"
     level_mechanics = "Переход на новый уровень: После сбора всех ключей, игрок должен найти выход, чтобы перейти на следующий уровень"
-    bm_lbl = tk.Label(text=base_mechanics, wraplength=550, justify="left", font=text_font)
-    km_lbl = tk.Label(text=key_mechanics, wraplength=550, justify="left", font=text_font)
-    sm_lbl = tk.Label(text=spike_mechanics, wraplength=550, justify="left", font=text_font)
-    lm_lbl = tk.Label(text=level_mechanics, wraplength=550, justify="left", font=text_font)
+    bm_lbl = tk.Label(bg="#cfcfcf", text=base_mechanics, wraplength=550, justify="left", font=text_font)
+    km_lbl = tk.Label(bg="#cfcfcf", text=key_mechanics, wraplength=550, justify="left", font=text_font)
+    sm_lbl = tk.Label(bg="#cfcfcf", text=spike_mechanics, wraplength=550, justify="left", font=text_font)
+    lm_lbl = tk.Label(bg="#cfcfcf", text=level_mechanics, wraplength=550, justify="left", font=text_font)
     bm_lbl.place(anchor="n", relx=.8, rely=.35)
     km_lbl.place(anchor="n", x=1512, rely=.4)
     sm_lbl.place(anchor="n", x=1512, rely=.57)
     lm_lbl.place(anchor="n", x=1512, rely=.74)
 
+
 def main_menu():
-    background = tk.Canvas(bg='White', width=1920, height=1080)
+    background = tk.Canvas(width=1920, height=1080)
     background.place(x=0, y=0)
 
     def music():
         if music_playing.get() == 1:
             winsound.PlaySound(None, winsound.SND_PURGE)
             music_playing.set(False)
-            music_button.configure(text='Включить музыку')
+            music_button.configure(image=music_off_img)
         else:
             winsound.PlaySound('music/berlin.wav',
                                winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
             music_playing.set(True)
-            music_button.configure(text='Выключить музыку')
+            music_button.configure(image=music_on_img)
 
-    game_name = Canvas(width=576, height=162)
-    # game_name.place()
-    game_name_img = ImageTk.PhotoImage(file='textures/name.png')
-    print(game_name_img.width())
-    game_name.create_image(0, 0, anchor='nw', image=game_name_img)
-    game_name.place(anchor="center", relx=.275, rely=.2)
+    game_name = Canvas(width=1920, height=1080)
+    game_name.place(anchor="center", relx=.5, rely=.5)
+    game_name.create_image(960, 540, anchor='center', image=bg_img)
+    game_name.create_image(500, 250, anchor='center', image=game_name_img)
 
-    btn_play = tk.Button(bg='white', bd=0, text="Играть", command=level_1, font=btn_font, anchor="w")
+    btn_play = tk.Button(command=level_1, image=play_img, borderwidth=0)
     btn_play.place(anchor="center", relx=.15, rely=.5, relheight=.1, relwidth=.2)
 
-    btn_help = tk.Button(bg='white', bd=0, text='Правила Игры', command=helper, font=btn_font, anchor="w")
+    btn_help = tk.Button(command=helper, image=rules_img, borderwidth=0)
     btn_help.place(anchor="center", relx=.15, rely=.61, relheight=.1, relwidth=.2)
 
-    music_button = tk.Button(bg='white', bd=0, command=music, font=btn_font, anchor="w")
+    music_button = tk.Button(command=music, borderwidth=0)
     music_button.place(anchor="center", relx=.15, rely=.72, relheight=.1, relwidth=.2)
-    music_playing.set(True)
-    music_button.configure(text='Выключить музыку')
 
-    btn_back = tk.Button(bg='white', bd=0, text="Выход", command=window.destroy, font=btn_font, anchor="w")
+    if music_playing.get() == 1:
+        music_button.configure(image=music_on_img)
+    else:
+        music_button.configure(image=music_off_img)
+
+    btn_back = tk.Button(command=window.destroy, image=exit_img, borderwidth=0)
     btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
@@ -244,9 +246,9 @@ def check_collision_exits():
 
 def create_character(x1, y1, x2, y2):
     global character_canvas, character
-    character_canvas = tk.Canvas(bg="WhiteSmoke", width=1920, height=1080)
+    character_canvas = tk.Canvas(bg="#cfcfcf", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
-    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="azure4", fill="grey20")
+    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="grey20", fill="grey20")
 
     # Назначение клавиш для функций передвижения
     window.bind("<Up>", move_up)
@@ -261,8 +263,16 @@ def create_platform(x, y, width, height):
 
 
 def create_spike(x, y, width, height):
-    spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red", outline="red")
+    spike = character_canvas.create_rectangle(x, y, x + width, y + height, fill="red")
     spikes.append(spike)
+
+    num_tiles_x = width // 20
+    num_tiles_y = height // 20
+
+    # Создаем мозаику изображений внутри прямоугольника
+    for i in range(num_tiles_x):
+        for j in range(num_tiles_y):
+            character_canvas.create_image(x + i*20, y + j*20, anchor='nw', image=lava_img)
 
 
 def create_key(x, y):
@@ -321,45 +331,51 @@ def restart_level():
 
 
 def pause_menu():
-    global pause, pause_text, btn_continue, btn_music, btn_exit
+    global pause, pause_text, btn_continue, btn_music, btn_exit, warning
 
     def music():
         if music_playing.get() == 1:
             winsound.PlaySound(None, winsound.SND_PURGE)
             music_playing.set(False)
-            btn_music.configure(text='Включить музыку')
+            btn_music.configure(image=music2_off_img)
         else:
             winsound.PlaySound('music/berlin.wav',
                                winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
             music_playing.set(True)
-            btn_music.configure(text='Выключить музыку')
+            btn_music.configure(image=music2_on_img)
 
-    pause = tk.Canvas(bg="white", width=1920, height=1080)
+    pause = tk.Canvas(bg="#cfcfcf", width=1920, height=1080)
     pause.place(x=0, y=0)
 
-    pause_text = tk.Label(text="ПАУЗА", font=btn_font)
+    pause_text = tk.Label(image=pause_text_img, borderwidth=0)
     pause_text.place(anchor="center", relx=.5, rely=.225, relheight=.2, relwidth=.35)
 
-    btn_continue = tk.Button(text="Продолжить", command=resume_play, font=btn_font)
+    btn_continue = tk.Button(command=resume_play, image=resume_img, borderwidth=0)
     btn_continue.place(anchor="center", relx=.5, rely=.5, relheight=.1, relwidth=.25)
 
-    btn_music = tk.Button(command=music, font=btn_font)
+    btn_music = tk.Button(command=music, borderwidth=0)
     btn_music.place(anchor="center", relx=.5, rely=.61, relheight=.1, relwidth=.25)
 
-    btn_exit = tk.Button(text="Выйти в главное меню", command=restore_to_menu_from_game, font=btn_font)
+    btn_exit = tk.Button(command=restore_to_menu_from_game, image=exit_to_menu_img, borderwidth=0)
     btn_exit.place(anchor="center", relx=.5, rely=.72, relheight=.1, relwidth=.25)
 
-    warning = tk.Label(text="При выходе в главное меню накопленный прогресс будет сброшен", font=btn_font)
-    warning.place(anchor="center", relx=.5, rely=.8)
+    if music_playing.get():
+        btn_music.configure(image=music2_on_img)
+    else:
+        btn_music.configure(image=music2_off_img)
+
+    warning = tk.Label(bg="#cfcfcf", text="(При выходе в главное меню накопленный прогресс будет сброшен)", font=btn_font)
+    warning.place(anchor="center", relx=.5, rely=.78)
 
 
 def resume_play():
-    global pause, pause_text, btn_continue, btn_music, btn_exit
+    global pause, pause_text, btn_continue, btn_music, btn_exit, warning
     pause.place_forget()
     pause_text.place_forget()
     btn_continue.place_forget()
     btn_music.place_forget()
     btn_exit.place_forget()
+    warning.place_forget()
 
 
 def next_level():
@@ -388,10 +404,10 @@ def clear_level():
     k = 0
     create_character(400, 960, 440, 1000)
 
-    btn_pause = tk.Button(text="II", command=pause_menu, font=btn_font)
+    btn_pause = tk.Button(command=pause_menu, image=pause_bt_img, borderwidth=0)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
-    btn_restart = tk.Button(text="R", command=restart_level, font=btn_font)
+    btn_restart = tk.Button(command=restart_level, image=restart_img, borderwidth=0)
     btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
 
 
@@ -401,10 +417,10 @@ def level_1():
     create_character(400, 960, 440, 1000)
     time_start = time.time()
 
-    btn_pause = tk.Button(text="II", command=pause_menu, font=btn_font)
+    btn_pause = tk.Button(command=pause_menu, image=pause_bt_img, borderwidth=0)
     btn_pause.place(anchor="center", relx=.026, rely=.046, relwidth=.03125, relheight=.05)
 
-    btn_restart = tk.Button(text="R", command=restart_level, font=btn_font)
+    btn_restart = tk.Button(command=restart_level, image=restart_img, borderwidth=0)
     btn_restart.place(anchor="center", relx=.061, rely=.046, relwidth=.03125, relheight=.05)
 
     create_platform(0, 1000, 2000, 100)  # spawn
@@ -496,10 +512,10 @@ def level_3():
 
     create_key(1850, 570)
     create_key(705, 170)
-    req_keys4 = 2
+    req_keys3 = 2
 
     def exits():
-        if check_keys(req_keys4):
+        if check_keys(req_keys3):
             create_exito(1840, 50, 60, 100)
         else:
             window.after(10, exits)
@@ -540,10 +556,10 @@ def level_4():
     create_key(1830, 920)
     create_key(230, 1010)
     create_key(1830, 320)
-    req_keys3 = 3
+    req_keys4 = 3
 
     def exits():
-        if check_keys(req_keys3):
+        if check_keys(req_keys4):
             create_exito(40, 100, 60, 100)
         else:
             window.after(10, exits)
@@ -555,20 +571,20 @@ def level_final():
     clear_level()
     all_time = str(round(time.time() - time_start))
 
-    final_message = tk.Label(text='ggwp', font=btn_font)
+    final_message = tk.Label(bg="#cfcfcf", text='ggwp', font=btn_font)
     final_message.place(anchor='center', relx=.5, rely=.4)
 
-    death = tk.Label(text='Смертей/Перезапусков:', font=btn_font)
+    death = tk.Label(bg="#cfcfcf", text='Смертей/Перезапусков:', font=btn_font)
     death.place(anchor='center', relx=.3, rely=.5)
-    death_count = tk.Label(text=f"{deaths}", font=btn_font)
+    death_count = tk.Label(bg="#cfcfcf", text=f"{deaths}", font=btn_font)
     death_count.place(anchor='center', relx=.3, rely=.55)
 
-    time_spent = tk.Label(text='Времени затрачено:', font=btn_font)
+    time_spent = tk.Label(bg="#cfcfcf", text='Времени затрачено:', font=btn_font)
     time_spent.place(anchor='center', relx=.7, rely=.5)
-    timer = tk.Label(text=f"{all_time}" + " секунд", font=btn_font)
+    timer = tk.Label(bg="#cfcfcf", text=f"{all_time}" + " секунд", font=btn_font)
     timer.place(anchor='center', relx=.7, rely=.55)
 
-    dead_end = tk.Button(text="Перейти в Главное меню", command=restore_to_menu_from_game, font=btn_font)
+    dead_end = tk.Button(bg="#cfcfcf", text="Перейти в Главное меню", command=restore_to_menu_from_game, font=btn_font)
     dead_end.place(anchor='center', relx=.5, rely=.65)
 
     create_platform(0, 1000, 2000, 100)
@@ -576,9 +592,29 @@ def level_final():
 
 window = tk.Tk()
 window.title('2D-Platformer')
+window.configure(bg='#cfcfcf')
 window.attributes('-fullscreen', True)
 btn_font = font.Font(font=('Better VCR Regular', 12))
 text_font = font.Font(font=('Better VCR Regular', 24))
+
+# Изображения для игры:
+game_name_img = ImageTk.PhotoImage(Image.open('textures/name.png'))
+lava_img = ImageTk.PhotoImage(Image.open('textures/lava.png'))
+key_img = ImageTk.PhotoImage(Image.open('textures/key.png'))
+bg_img = ImageTk.PhotoImage(Image.open('textures/bg.png'))
+play_img = ImageTk.PhotoImage(Image.open('textures/play.png'))
+music_off_img = ImageTk.PhotoImage(Image.open('textures/music_off.png'))
+music_on_img = ImageTk.PhotoImage(Image.open('textures/music_on.png'))
+music2_off_img = ImageTk.PhotoImage(Image.open('textures/music2_off.png'))
+music2_on_img = ImageTk.PhotoImage(Image.open('textures/music2_on.png'))
+rules_img = ImageTk.PhotoImage(Image.open('textures/rules.png'))
+exit_img = ImageTk.PhotoImage(Image.open('textures/exit.png'))
+resume_img = ImageTk.PhotoImage(Image.open('textures/resume.png'))
+exit_to_menu_img = ImageTk.PhotoImage(Image.open('textures/exit_to_menu.png'))
+pause_text_img = ImageTk.PhotoImage(Image.open('textures/pause.png'))
+restart_img = ImageTk.PhotoImage(Image.open('textures/restart.png'))
+pause_bt_img = ImageTk.PhotoImage(Image.open('textures/pause_btn.png'))
+levels_bg_img = ImageTk.PhotoImage(Image.open('textures/levels_bg.png'))
 
 winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
 music_playing = BooleanVar()
