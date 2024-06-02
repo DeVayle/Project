@@ -367,6 +367,10 @@ def pause_menu():
     warning = tk.Label(bg="#cfcfcf", text="(При выходе в главное меню накопленный прогресс будет сброшен)", font=btn_font)
     warning.place(anchor="center", relx=.5, rely=.78)
 
+    window.unbind("<Up>")
+    window.unbind_all('<KeyRelease>')
+    window.unbind_all('<KeyPress>')
+
 
 def resume_play():
     global pause, pause_text, btn_continue, btn_music, btn_exit, warning
@@ -376,6 +380,10 @@ def resume_play():
     btn_music.place_forget()
     btn_exit.place_forget()
     warning.place_forget()
+
+    window.bind("<Up>", move_up)
+    window.bind_all('<KeyRelease>', key_released)
+    window.bind_all('<KeyPress>', key_pressed)
 
 
 def next_level():
