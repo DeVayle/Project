@@ -64,7 +64,8 @@ def helper():
     bg = tk.Canvas(bg="#cfcfcf", width=1920, height=1080)
     bg.place(x=0, y=0)
 
-    btn_back = tk.Button(bg="#cfcfcf", activebackground="#cfcfcf", text='Вернуться', command=restore_to_menu, font=text_font, borderwidth=0)
+    btn_back = tk.Button(bg="#cfcfcf", activebackground="#cfcfcf", text='Вернуться', command=restore_to_menu,
+                         font=text_font, borderwidth=0)
     btn_back.place(anchor="center", relx=.125, rely=.9, relheight=.1, relwidth=.2)
 
     you = "Ваш главный персонаж - серый квадрат"
@@ -147,7 +148,7 @@ gravity_running = False
 
 
 def move():
-    global move_running, time_start
+    global move_running, time_start, v
     x1, y1, x2, y2 = character_canvas.coords(character)
     collision = check_collision_platforms(x1, y1, x2, y2)
     if "Left" in pressed_keys and collision != 'right' and x1 > 0:
@@ -158,6 +159,7 @@ def move():
     check_collision_spikes()
     keys_collected()
     move_running = True
+    print(v)
     window.after(20, move)  # Повторить перемещение через 20 мс
 
 
@@ -172,12 +174,13 @@ def move_up(event):
 
 def jump_up(initial_y):
     global in_air, jumping
-    x1, y1, x2, y2 = character_canvas.coords(character)
-    if y1 > initial_y - 220:  # Проверка, достиг ли персонаж во время прыжка своей максимальной высоты прыжка
-        character_canvas.move(character, 0, -20)
-        window.after(3, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
-    else:
-        jumping = False
+    if jumping:
+        x1, y1, x2, y2 = character_canvas.coords(character)
+        if y1 > initial_y - 220:  # Проверка, достиг ли персонаж во время прыжка своей максимальной высоты прыжка
+            character_canvas.move(character, 0, -20)
+            window.after(3, lambda: jump_up(initial_y))  # Вызов функции еще раз после задержки
+        else:
+            jumping = False
 
 
 def apply_gravity():
@@ -238,10 +241,11 @@ def keys_collected():
 
 def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
-    for exito in exits:
-        ex1, ey1, ex2, ey2 = character_canvas.coords(exito)
-        if (ex1 <= x1 <= ex2 or ex1 <= x2 <= ex2) and (ey1 <= y1 <= ey2 or ey1 <= y2 <= ey2):
-            next_level()
+    if exits:  # Проверка, что список exits не пустой
+        for exito in exits:
+            ex1, ey1, ex2, ey2 = character_canvas.coords(exito)
+            if (ex1 <= x1 <= ex2 or ex1 <= x2 <= ex2) and (ey1 <= y1 <= ey2 or ey1 <= y2 <= ey2):
+                next_level()
 
 
 def create_character(x1, y1, x2, y2):
@@ -285,12 +289,16 @@ def check_keys(required_keys):
 
 
 def create_exito(x, y, width, height):
-    exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
-    exits.append(exito)
+    if exits:  # Проверка, что список exits не пустой
+        exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
+        exits.append(exito)
+    else:
+        exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
+        exits.append(exito)
 
 
 def restart_level():
-    global character_canvas, character, k, exits, spikes, keys, exito, move_running, gravity_running, deaths
+    global character_canvas, character, k, exits, spikes, keys, exito, jumping, in_air, move_running, gravity_running, deaths
 
     # Удаление существующих объектов с холста
     character_canvas.delete(character)
@@ -322,10 +330,10 @@ def restart_level():
     elif v == 3:
         level_3()
     elif v == 4:
-        level_4()
-    elif v == 5:
         level_final()
 
+    in_air = False
+    jumping = False
     move_running = True
     gravity_running = True
 
@@ -395,21 +403,22 @@ def next_level():
         level_3()
         v += 1
     elif v == 3:
-        level_4()
-        v += 1
-    elif v == 4:
         level_final()
         v += 1
 
 
 def clear_level():
-    global platforms, exits, spikes, keys, k
+    global platforms, exits, spikes, keys, k, jumping, in_air
     clear_window()
+
     platforms = []
     exits = []
     spikes = []
     keys = []
     k = 0
+    jumping = False
+    in_air = False
+
     create_character(400, 960, 440, 1000)
 
     btn_pause = tk.Button(command=pause_menu, image=pause_bt_img, borderwidth=0)
@@ -444,12 +453,12 @@ def level_1():
     create_key(480, 720)
     req_keys1 = 1
 
-    def exits():
+    def exits1():
         if check_keys(req_keys1):
             create_exito(50, 100, 60, 100)
         else:
-            window.after(10, exits)
-    exits()
+            window.after(10, exits1)
+    exits1()
 
     global move_running, gravity_running
     if not move_running:
@@ -482,12 +491,12 @@ def level_2():
     create_key(1550, 320)
     req_keys2 = 3
 
-    def exits():
+    def exits2():
         if check_keys(req_keys2):
             create_exito(930, 150, 60, 100)
         else:
-            window.after(10, exits)
-    exits()
+            window.after(10, exits2)
+    exits2()
 
 
 def level_3():
@@ -514,64 +523,19 @@ def level_3():
     create_spike(100, 870, 200, 20)
     create_spike(550, 680, 100, 20)
     create_spike(790, 780, 520, 20)
-    create_spike(1780, 170, 20, 330)
+    create_spike(1780, 180, 20, 320)
     create_spike(1100, 170, 1000, 20)
     create_spike(900, 0, 20, 400)
 
-    create_key(1850, 570)
     create_key(705, 170)
-    req_keys3 = 2
+    req_keys3 = 1
 
-    def exits():
+    def exits3():
         if check_keys(req_keys3):
             create_exito(1840, 50, 60, 100)
         else:
-            window.after(10, exits)
-    exits()
-
-
-def level_4():
-    clear_level()
-
-    create_platform(300, 1000, 200, 100)  # spawn
-    create_platform(700, 1000, 200, 20)
-    create_platform(1100, 1000, 300, 20)
-    create_platform(1450, 850, 200, 20)
-    create_platform(1800, 950, 100, 20)  # key 1
-    create_platform(1750, 700, 100, 20)
-    create_platform(1400, 600, 200, 20)
-    create_platform(1000, 600, 180, 20)
-    create_platform(650, 600, 150, 20)
-    create_platform(350, 600, 100, 20)
-    create_platform(220, 620, 60, 20)
-    create_platform(220, 760, 60, 20)
-    create_platform(220, 900, 60, 20)
-    create_platform(220, 1040, 60, 20)  # key 2
-    create_platform(0, 500, 60, 20)
-    create_platform(0, 350, 60, 20)
-    create_platform(0, 200, 400, 20)  # end
-    create_platform(550, 250, 150, 20)
-    create_platform(900, 250, 120, 20)
-    create_platform(1200, 250, 200, 20)
-    create_platform(1800, 350, 200, 20)  # key 3
-    create_platform(1550, 200, 200, 20)
-
-    create_spike(300, 1030, 2000, 100)
-    create_spike(0, 1060, 300, 50)
-    create_spike(280, 480, 20, 1000)
-    create_spike(280, 220, 20, 80)
-
-    create_key(1830, 920)
-    create_key(230, 1010)
-    create_key(1830, 320)
-    req_keys4 = 3
-
-    def exits():
-        if check_keys(req_keys4):
-            create_exito(40, 100, 60, 100)
-        else:
-            window.after(10, exits)
-    exits()
+            window.after(10, exits3)
+    exits3()
 
 
 def level_final():
@@ -579,20 +543,20 @@ def level_final():
     clear_level()
     all_time = str(round(time.time() - time_start))
 
-    final_message = tk.Label(bg="#cfcfcf", text='ggwp', font=btn_font)
+    final_message = tk.Label(bg="#cfcfcf", text='Поздравляю, Вы прошли игру!', font=text_font)
     final_message.place(anchor='center', relx=.5, rely=.4)
 
-    death = tk.Label(bg="#cfcfcf", text='Смертей/Перезапусков:', font=btn_font)
+    death = tk.Label(bg="#cfcfcf", text='Смертей/Перезапусков:', font=text_font)
     death.place(anchor='center', relx=.3, rely=.5)
-    death_count = tk.Label(bg="#cfcfcf", text=f"{deaths}", font=btn_font)
+    death_count = tk.Label(bg="#cfcfcf", text=f"{deaths}", font=text_font)
     death_count.place(anchor='center', relx=.3, rely=.55)
 
-    time_spent = tk.Label(bg="#cfcfcf", text='Времени затрачено:', font=btn_font)
+    time_spent = tk.Label(bg="#cfcfcf", text='Времени затрачено:', font=text_font)
     time_spent.place(anchor='center', relx=.7, rely=.5)
-    timer = tk.Label(bg="#cfcfcf", text=f"{all_time}" + " секунд", font=btn_font)
+    timer = tk.Label(bg="#cfcfcf", text=f"{all_time}" + " секунд", font=text_font)
     timer.place(anchor='center', relx=.7, rely=.55)
 
-    dead_end = tk.Button(bg="#cfcfcf", text="Перейти в Главное меню", command=restore_to_menu_from_game, font=btn_font)
+    dead_end = tk.Button(command=restore_to_menu_from_game, image=exit_to_menu_img, borderwidth=0)
     dead_end.place(anchor='center', relx=.5, rely=.65)
 
     create_platform(0, 1000, 2000, 100)
