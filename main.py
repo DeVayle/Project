@@ -68,6 +68,10 @@ def helper():
                          font=text_font, borderwidth=0)
     btn_back.place(anchor="center", relx=.125, rely=.9, relheight=.1, relwidth=.2)
 
+    bg.create_image(200, 120, anchor="nw", image=rules_pic1_img)
+    bg.create_image(760, 120, anchor="nw", image=rules_pic2_img)
+    bg.create_image(1320, 120, anchor="nw", image=rules_pic3_img)
+
     you = "Ваш главный персонаж - серый квадрат"
     goal = "Основная цель игры - собрать все ключи на каждом уровне и успешно пройти все уровни, избегая опасности"
     you_lbl = tk.Label(bg="#cfcfcf", text=you, wraplength=575, justify="left", font=text_font)
@@ -159,7 +163,6 @@ def move():
     check_collision_spikes()
     keys_collected()
     move_running = True
-    print(v)
     window.after(20, move)  # Повторить перемещение через 20 мс
 
 
@@ -231,28 +234,38 @@ def check_collision_spikes():
 def keys_collected():
     global k
     x1, y1, x2, y2 = character_canvas.coords(character)
-    for key in keys:
-        kx1, ky1, kx2, ky2 = character_canvas.coords(key)
-        if kx1 <= (x1 + x2) / 2 <= kx2 and ky1 <= (y1 + y2) / 2 <= ky2:
+    char_center_x = (x1 + x2) / 2
+    char_center_y = (y1 + y2) / 2
+
+    for key in keys[:]:
+        kx, ky = character_canvas.coords(key)
+        if abs(char_center_x - kx) < 30 and abs(char_center_y - ky) < 30:
             k += 1
-            keys.remove(key)  # Удаление ключа из списка
-            character_canvas.delete(key)  # Удаление ключа с экрана
+            keys.remove(key)
+            character_canvas.delete(key)
 
 
 def check_collision_exits():
     x1, y1, x2, y2 = character_canvas.coords(character)
-    if exits:  # Проверка, что список exits не пустой
-        for exito in exits:
-            ex1, ey1, ex2, ey2 = character_canvas.coords(exito)
-            if (ex1 <= x1 <= ex2 or ex1 <= x2 <= ex2) and (ey1 <= y1 <= ey2 or ey1 <= y2 <= ey2):
-                next_level()
+
+    for exito in exits:
+        ex1, ey1 = character_canvas.coords(exito)
+        ex2 = 60  # Ширина портала
+        ey2 = 100  # Высота портала
+
+        # Проверка пересечения прямоугольников
+        if (x1 < ex1 + ex2 and x2 > ex1 and
+                y1 < ey1 + ey2 and y2 > ey1):
+            next_level()
+            return
 
 
 def create_character(x1, y1, x2, y2):
     global character_canvas, character
     character_canvas = tk.Canvas(bg="#cfcfcf", width=1920, height=1080)
     character_canvas.place(anchor="center", relx=.5, rely=.5)
-    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="grey20", fill="grey20")
+    character_canvas.create_image(0, 0, anchor="nw", image=levels_bg_img)
+    character = character_canvas.create_rectangle(x1, y1, x2, y2, outline="grey20", fill="grey50")
 
     # Назначение клавиш для функций передвижения
     window.bind("<Up>", move_up)
@@ -280,7 +293,7 @@ def create_spike(x, y, width, height):
 
 
 def create_key(x, y):
-    key = character_canvas.create_rectangle(x, y, x + 40, y + 20, fill="gold")
+    key = character_canvas.create_image(x, y, anchor='nw', image=key_img)
     keys.append(key)
 
 
@@ -288,13 +301,9 @@ def check_keys(required_keys):
     return k == required_keys
 
 
-def create_exito(x, y, width, height):
-    if exits:  # Проверка, что список exits не пустой
-        exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
-        exits.append(exito)
-    else:
-        exito = character_canvas.create_rectangle(x, y, x + width, y + height, fill="blue")
-        exits.append(exito)
+def create_exito(x, y):
+    exito = character_canvas.create_image(x, y, anchor='nw', image=portal_img)
+    exits.append(exito)
 
 
 def restart_level():
@@ -372,10 +381,10 @@ def pause_menu():
     else:
         btn_music.configure(image=music2_off_img)
 
-    warning = tk.Label(bg="#cfcfcf", text="(При выходе в главное меню накопленный прогресс будет сброшен)", font=btn_font)
+    warning = tk.Label(bg="#cfcfcf", text="(При выходе в главное меню накопленный прогресс будет сброшен)", font=text_font)
     warning.place(anchor="center", relx=.5, rely=.78)
 
-    window.unbind("<Up>")
+    window.unbind('<Up>')
     window.unbind_all('<KeyRelease>')
     window.unbind_all('<KeyPress>')
 
@@ -455,7 +464,7 @@ def level_1():
 
     def exits1():
         if check_keys(req_keys1):
-            create_exito(50, 100, 60, 100)
+            create_exito(50, 100)
         else:
             window.after(10, exits1)
     exits1()
@@ -493,7 +502,7 @@ def level_2():
 
     def exits2():
         if check_keys(req_keys2):
-            create_exito(930, 150, 60, 100)
+            create_exito(930, 150)
         else:
             window.after(10, exits2)
     exits2()
@@ -532,7 +541,7 @@ def level_3():
 
     def exits3():
         if check_keys(req_keys3):
-            create_exito(1840, 50, 60, 100)
+            create_exito(1840, 50)
         else:
             window.after(10, exits3)
     exits3()
@@ -543,36 +552,37 @@ def level_final():
     clear_level()
     all_time = str(round(time.time() - time_start))
 
-    final_message = tk.Label(bg="#cfcfcf", text='Поздравляю, Вы прошли игру!', font=text_font)
-    final_message.place(anchor='center', relx=.5, rely=.4)
+    create_platform(0, 0, 2000, 2000)
 
-    death = tk.Label(bg="#cfcfcf", text='Смертей/Перезапусков:', font=text_font)
-    death.place(anchor='center', relx=.3, rely=.5)
-    death_count = tk.Label(bg="#cfcfcf", text=f"{deaths}", font=text_font)
-    death_count.place(anchor='center', relx=.3, rely=.55)
+    final_message = tk.Label(bg="#000000", text='Поздравляю, Вы прошли игру!', font=text_font, fg="white")
+    final_message.place(anchor='center', relx=.5, rely=.3)
 
-    time_spent = tk.Label(bg="#cfcfcf", text='Времени затрачено:', font=text_font)
-    time_spent.place(anchor='center', relx=.7, rely=.5)
-    timer = tk.Label(bg="#cfcfcf", text=f"{all_time}" + " секунд", font=text_font)
-    timer.place(anchor='center', relx=.7, rely=.55)
+    death = tk.Label(bg="#000000", text='Смертей/Перезапусков:', font=text_font, fg="white")
+    death.place(anchor='center', relx=.3, rely=.45)
+    death_count = tk.Label(bg="#000000", text=f"{deaths}", font=text_font, fg="white")
+    death_count.place(anchor='center', relx=.3, rely=.5)
 
-    dead_end = tk.Button(command=restore_to_menu_from_game, image=exit_to_menu_img, borderwidth=0)
-    dead_end.place(anchor='center', relx=.5, rely=.65)
+    time_spent = tk.Label(bg="#000000", text='Времени затрачено:', font=text_font, fg="white")
+    time_spent.place(anchor='center', relx=.7, rely=.45)
+    timer = tk.Label(bg="#000000", text=f"{all_time}" + " секунд", font=text_font, fg="white")
+    timer.place(anchor='center', relx=.7, rely=.5)
 
-    create_platform(0, 1000, 2000, 100)
+    dead_end = tk.Button(bg="#000000", activeforeground="#000000", text="В главное меню", command=restore_to_menu_from_game, font=btn_font, fg="white")
+    dead_end.place(anchor='center', relx=.5, rely=.7)
 
 
 window = tk.Tk()
 window.title('2D-Platformer')
 window.configure(bg='#cfcfcf')
 window.attributes('-fullscreen', True)
-btn_font = font.Font(font=('Better VCR Regular', 12))
+btn_font = font.Font(font=('Better VCR Regular', 48))
 text_font = font.Font(font=('Better VCR Regular', 24))
 
 # Изображения для игры:
 game_name_img = ImageTk.PhotoImage(Image.open('textures/name.png'))
 lava_img = ImageTk.PhotoImage(Image.open('textures/lava.png'))
 key_img = ImageTk.PhotoImage(Image.open('textures/key.png'))
+portal_img = ImageTk.PhotoImage(Image.open('textures/portal.png'))
 bg_img = ImageTk.PhotoImage(Image.open('textures/bg.png'))
 play_img = ImageTk.PhotoImage(Image.open('textures/play.png'))
 music_off_img = ImageTk.PhotoImage(Image.open('textures/music_off.png'))
@@ -587,6 +597,9 @@ pause_text_img = ImageTk.PhotoImage(Image.open('textures/pause.png'))
 restart_img = ImageTk.PhotoImage(Image.open('textures/restart.png'))
 pause_bt_img = ImageTk.PhotoImage(Image.open('textures/pause_btn.png'))
 levels_bg_img = ImageTk.PhotoImage(Image.open('textures/levels_bg.png'))
+rules_pic1_img = ImageTk.PhotoImage(Image.open('textures/rules_pic1.png'))
+rules_pic2_img = ImageTk.PhotoImage(Image.open('textures/rules_pic2.png'))
+rules_pic3_img = ImageTk.PhotoImage(Image.open('textures/rules_pic3.png'))
 
 winsound.PlaySound('music/berlin.wav', winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
 music_playing = BooleanVar()
