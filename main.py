@@ -144,7 +144,7 @@ def main_menu():
     btn_back.place(anchor="center", relx=.15, rely=.83, relheight=.1, relwidth=.2)
 
 
-# Инициализация возможных описаний персонажа "В воздухе" и "В прыжке"
+# Инициализация возможных описаний персонажа "В воздухе", "В прыжке", "В движении" и "Работа гравитации"
 in_air = False
 jumping = False
 move_running = False
@@ -253,7 +253,7 @@ def check_collision_exits():
         ex2 = 60  # Ширина портала
         ey2 = 100  # Высота портала
 
-        # Проверка пересечения прямоугольников
+        # Проверка пересечения
         if (x1 < ex1 + ex2 and x2 > ex1 and
                 y1 < ey1 + ey2 and y2 > ey1):
             next_level()
@@ -274,7 +274,6 @@ def create_character(x1, y1, x2, y2):
 
 
 def create_platform(x, y, width, height):
-    # Создание платформ в character_canvas
     platform = character_canvas.create_rectangle(x, y, x + width, y + height, fill="black")
     platforms.append(platform)
 
@@ -286,7 +285,7 @@ def create_spike(x, y, width, height):
     num_tiles_x = width // 20
     num_tiles_y = height // 20
 
-    # Создаем мозаику изображений внутри прямоугольника
+    # Заполнение canvas'а спрайтом lava.png
     for i in range(num_tiles_x):
         for j in range(num_tiles_y):
             character_canvas.create_image(x + i*20, y + j*20, anchor='nw', image=lava_img)
@@ -481,36 +480,6 @@ def level_1():
 def level_2():
     clear_level()
 
-    create_platform(300, 1000, 200, 100)  # spawn
-    create_platform(100, 850, 250, 20)
-    create_platform(1570, 850, 250, 20)
-    create_platform(350, 650, 250, 20)
-    create_platform(1320, 650, 250, 20)
-    create_platform(600, 450, 250, 20)
-    create_platform(1070, 450, 250, 20)
-    create_platform(850, 250, 220, 20)  # end
-    create_platform(800, 750, 320, 20)  # key 1
-    create_platform(280, 350, 150, 20)  # key 2
-    create_platform(1490, 350, 150, 20)  # key 3
-
-    create_spike(0, 1020, 2000, 100)
-
-    create_key(940, 720)
-    create_key(330, 320)
-    create_key(1550, 320)
-    req_keys2 = 3
-
-    def exits2():
-        if check_keys(req_keys2):
-            create_exito(930, 150)
-        else:
-            window.after(10, exits2)
-    exits2()
-
-
-def level_3():
-    clear_level()
-
     create_platform(0, 1000, 2000, 100)  # ground
     create_platform(100, 850, 200, 20)
     create_platform(400, 700, 410, 20)
@@ -537,11 +506,41 @@ def level_3():
     create_spike(900, 0, 20, 400)
 
     create_key(705, 170)
-    req_keys3 = 1
+    req_keys2 = 1
+
+    def exits2():
+        if check_keys(req_keys2):
+            create_exito(1840, 50)
+        else:
+            window.after(10, exits2)
+    exits2()
+
+
+def level_3():
+    clear_level()
+
+    create_platform(300, 1000, 200, 100)  # spawn
+    create_platform(100, 850, 250, 20)
+    create_platform(1570, 850, 250, 20)
+    create_platform(350, 650, 250, 20)
+    create_platform(1320, 650, 250, 20)
+    create_platform(600, 450, 250, 20)
+    create_platform(1070, 450, 250, 20)
+    create_platform(850, 250, 220, 20)  # end
+    create_platform(800, 750, 320, 20)  # key 1
+    create_platform(280, 350, 150, 20)  # key 2
+    create_platform(1490, 350, 150, 20)  # key 3
+
+    create_spike(0, 1020, 2000, 100)
+
+    create_key(940, 720)
+    create_key(330, 320)
+    create_key(1550, 320)
+    req_keys3 = 3
 
     def exits3():
         if check_keys(req_keys3):
-            create_exito(1840, 50)
+            create_exito(930, 150)
         else:
             window.after(10, exits3)
     exits3()
